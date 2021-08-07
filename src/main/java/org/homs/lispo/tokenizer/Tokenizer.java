@@ -136,6 +136,9 @@ public class Tokenizer implements Iterator<Token> {
                     updateRowCol(p);
                     p++;
                 }
+                if (p >= program.length()) {
+                    return;
+                }
             }
             updateRowCol(p);
             p++;

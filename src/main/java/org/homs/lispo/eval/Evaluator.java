@@ -2,6 +2,7 @@ package org.homs.lispo.eval;
 
 import org.homs.lispo.Environment;
 import org.homs.lispo.parser.ast.*;
+import org.homs.lispo.util.ReflectUtils;
 
 import java.util.*;
 import java.util.Map.Entry;
@@ -20,6 +21,12 @@ public class Evaluator {
         super();
         this.env = env;
         this.lazyFuncNames = lazyFuncNames;
+    }
+
+    public Evaluator(Evaluator ev) {
+        super();
+        this.env = new Environment(ev.env);
+        this.lazyFuncNames = ev.lazyFuncNames;
     }
 
 //    public Object eval(String sourceDesc, String code) {
@@ -73,7 +80,13 @@ public class Evaluator {
                     return f.eval(ast.getTokenAt(), this, args);
                 } else {
 
-//                    List<Ast> args = parenthesisAst.arguments;
+
+                    List<Ast> args = parenthesisAst.arguments;
+
+                    // TODO validate arguments
+                    String methodName = (String) evalAst(args.get(0));
+                    List<Object> methodArgs = (List<Object>) evalAst(args.get(1));
+                    return ReflectUtils.callMethod(op, methodName, methodArgs.toArray());
 
 //					if (op instanceof Boolean) {
 //
@@ -143,7 +156,7 @@ public class Evaluator {
 //                        throw new RuntimeException(); // TODO
 ////						}
 //                    }
-                    throw new RuntimeException(); // TODO
+                    // throw new RuntimeException(); // TODO
                 }
             } else {
                 throw new RuntimeException(ast.getClass().getName());
@@ -185,15 +198,7 @@ public class Evaluator {
         return r;
     }
 
-
-//    @Deprecated
-//    public Environment getEnv() {
-//        return env;
-//    }
-//
-//    @Deprecated
-//    public Collection<String> getLazyFuncNames() {
-//        return lazyFuncNames;
-//    }
-
+    public Environment getEnvironment() {
+        return env;
+    }
 }

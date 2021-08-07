@@ -15,7 +15,7 @@ import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-class EvaluatorTest {
+public class EvaluatorTest {
 
     Func concat = (TokenAt tokenAt, Evaluator ev, List<Object> args) -> {
         StringBuilder s = new StringBuilder();
@@ -80,7 +80,6 @@ class EvaluatorTest {
         env.def("pi", 3.14159);
         env.def("concat", concat);
         env.def("lazy-concat", lazyConcat);
-
 
         Evaluator evaluator = new Evaluator(env, Arrays.asList("lazy-concat"));
 

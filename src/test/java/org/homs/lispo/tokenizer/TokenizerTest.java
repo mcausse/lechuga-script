@@ -11,7 +11,7 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.fail;
 
-public class TokenizerShould {
+public class TokenizerTest {
 
     @ParameterizedTest
     @ValueSource(strings = {
@@ -82,6 +82,7 @@ public class TokenizerShould {
             "'\"hoho\"',        '[STRING:hoho]'",
             "'\"ho\nho\"',      '[STRING:ho\nho]'",
             "'\"ho\\\"ho\"',    '[STRING:ho\"ho]'",
+            ";comment',         '[]'",
     })
     void tokenize_a_program_properly(String program, String expectedStringifiedTokens) {
 

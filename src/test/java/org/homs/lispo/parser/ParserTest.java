@@ -11,13 +11,14 @@ import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.MethodSource;
 
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-class ParserShould {
+public class ParserTest {
 
     static Token tokenBuild(EToken type, String value) {
         return new Token(type, value, "", -1, -1);
@@ -25,6 +26,15 @@ class ParserShould {
 
     @Test
     void parse() {
+        Iterator<Token> tokenizer = Arrays.asList(
+                tokenBuild(EToken.NUMERIC, "3.14159")
+        ).iterator();
+        Parser parser = new Parser(tokenizer);
+
+        List<Ast> resultAst = parser.parse();
+
+        assertThat(resultAst).hasSize(1);
+        assertThat(resultAst.get(0).toString()).isEqualTo("3.14159");
     }
 
     @ParameterizedTest
@@ -92,14 +102,6 @@ class ParserShould {
         );
 
         assertThat(e.getMessage()).isEqualTo("expected ] but EOF; at :-1,-1");
-    }
-
-    @Test
-    void parseMapAst() {
-    }
-
-    @Test
-    void parseParenthesisAst() {
     }
 
 }
