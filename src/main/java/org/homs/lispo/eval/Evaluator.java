@@ -42,7 +42,7 @@ public class Evaluator {
 //    }
 
 
-    public Object evalAst(Ast ast) {
+    public Object evalAst(Ast ast) throws Throwable {
 
         try {
             if (ast instanceof StringAst) {
@@ -85,7 +85,12 @@ public class Evaluator {
 
                     // TODO validate arguments
                     String methodName = (String) evalAst(args.get(0));
-                    List<Object> methodArgs = (List<Object>) evalAst(args.get(1));
+                    final List<Object> methodArgs;
+                    if (args.size() == 1) {
+                        methodArgs = Collections.emptyList();
+                    } else {
+                        methodArgs = (List<Object>) evalAst(args.get(1));
+                    }
                     return ReflectUtils.callMethod(op, methodName, methodArgs.toArray());
 
 //					if (op instanceof Boolean) {
@@ -180,7 +185,7 @@ public class Evaluator {
         return operator instanceof SymbolAst && lazyFuncNames.contains(((SymbolAst) operator).value);
     }
 
-    protected List<Object> evalListAst(List<Ast> listAstValues) {
+    protected List<Object> evalListAst(List<Ast> listAstValues) throws Throwable {
         List<Object> r = new ArrayList<>();
         for (Ast a : listAstValues) {
             r.add(evalAst(a));
@@ -188,7 +193,7 @@ public class Evaluator {
         return r;
     }
 
-    protected Map<Object, Object> evalMapAst(Map<Ast, Ast> mapAstValues) {
+    protected Map<Object, Object> evalMapAst(Map<Ast, Ast> mapAstValues) throws Throwable {
         Map<Object, Object> r = new LinkedHashMap<>();
         for (Entry<Ast, Ast> a : mapAstValues.entrySet()) {
             Object k = evalAst(a.getKey());

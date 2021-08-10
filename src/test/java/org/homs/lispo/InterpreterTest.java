@@ -85,6 +85,10 @@ public class InterpreterTest {
                 Arguments.of("[42 3.14159 \"jou\" null false]", Arrays.asList(42, 3.14159, "jou", null, false)),
                 Arguments.of("{[1 :one][2 :two][3 :three]}", ordinalsMap),
 
+                Arguments.of("(multi)", null),
+                Arguments.of("(multi 1)", 1),
+                Arguments.of("(multi 1 2 3)", 3),
+
                 Arguments.of("(def pi 3.14159)", 3.14159),
                 Arguments.of("(def pi 3.14159) pi", 3.14159),
                 Arguments.of("(def pi 1 2 3.14159)", 3.14159),
@@ -98,6 +102,7 @@ public class InterpreterTest {
                 Arguments.of("(def r 1)(if true (set r 2) (set r 3)) r", 2),
                 Arguments.of("(def r 1)(if false (set r 2) (set r 3)) r", 3),
 
+                Arguments.of("((fn [] 3))", 3),
                 Arguments.of("((fn [x] x) 3)", 3),
                 Arguments.of("((fn [x] (if x 1 2)) true)", 1),
                 Arguments.of("((fn [x] (if x 1 2)) false)", 2),
@@ -181,17 +186,16 @@ public class InterpreterTest {
                                 "(((curry +) 2) 3)"
                         , 5),
 
-//                Arguments.of("()", 1),
-//                Arguments.of("()", 1),
-//                Arguments.of("()", 1),
+                Arguments.of("\"\"\"arrr\nrrrgh\"\"\"", "arrr\nrrrgh"),
 
+                
                 Arguments.of("true", true)
         );
     }
 
     @ParameterizedTest
     @MethodSource("expressionProvider")
-    void testInterpret(String expression, Object expectedResult) {
+    void testInterpret(String expression, Object expectedResult) throws Throwable {
         Interpreter i = new Interpreter();
 
         Object result = i.interpret(expression, "test");
@@ -207,7 +211,7 @@ public class InterpreterTest {
 
     @ParameterizedTest
     @MethodSource("scriptsProvider")
-    void testRunScript(String scriptName, Object expectedResult) {
+    void testRunScript(String scriptName, Object expectedResult) throws Throwable {
         Interpreter i = new Interpreter();
 
         Object result = i.evalClassPathFile(scriptName);

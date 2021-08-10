@@ -75,7 +75,7 @@ public class EvaluatorTest {
 
     @ParameterizedTest
     @MethodSource("astProvider")
-    void testEvalAst(Ast astToEvaluate, Object expectedResult) {
+    void testEvalAst(Ast astToEvaluate, Object expectedResult) throws Throwable {
         Environment env = new Environment(null);
         env.def("pi", 3.14159);
         env.def("concat", concat);

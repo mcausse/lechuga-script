@@ -45,6 +45,8 @@ public class Interpreter {
         }
     }
 
+    final Func funcMulti = (tokenAt, ev, args) -> args.isEmpty() ? null : args.get(args.size() - 1);
+
     final Func funcDef = (TokenAt tokenAt, Evaluator ev, List<Object> args) -> {
         FuncUtils.verifyArgumentsNumber(tokenAt, 2, null, args);
         String symbol = ((SymbolAst) args.get(0)).value;
@@ -226,7 +228,7 @@ public class Interpreter {
     };
 
     final Func funcThrow = (tokenAt, ev, args) -> {
-        Error ex = (Error) args.get(0);
+        Throwable ex = (Throwable) args.get(0);
         throw ex;
     };
 
@@ -237,7 +239,7 @@ public class Interpreter {
 
         try {
             return ev.evalAst(bodyAst);
-        } catch (Error e) {
+        } catch (Throwable e) {
             String exceptionClassName = (String) ev.evalAst(exceptionClassNameAst); // TODO
             Class<?> exceptionClass;
             try {
@@ -255,8 +257,8 @@ public class Interpreter {
     };
 
     final Func funcIsNull = (tokenAt, ev, args) -> {
-        Object o =  args.get(0);
-        return o==null;
+        Object o = args.get(0);
+        return o == null;
     };
 
 
@@ -264,6 +266,8 @@ public class Interpreter {
     final Set<String> lazyFuncNames = new LinkedHashSet<>();
 
     {
+        register("multi", false, funcMulti);
+
         register("def", true, funcDef);
         register("set", true, funcSet);
         register("fn", true, funcFn);
@@ -283,12 +287,10 @@ public class Interpreter {
 
         register("curry", false, funcCurry);
 
-
         register("throw", false, funcThrow);
         register("try-catch", true, funcTryCatch);
 
         register("is-null?", false, funcIsNull);
-
     }
 
     public void register(String name, Object value) {
@@ -302,7 +304,7 @@ public class Interpreter {
         }
     }
 
-    public Object interpret(String program, String sourceDesc) {
+    public Object interpret(String program, String sourceDesc) throws Throwable {
         Tokenizer tokenizer = new Tokenizer(program, sourceDesc);
         Parser parser = new Parser(tokenizer);
         Evaluator evaluator = new Evaluator(new Environment(env), lazyFuncNames);
@@ -315,12 +317,12 @@ public class Interpreter {
         return result;
     }
 
-    public Object evalClassPathFile(String fileName) {
+    public Object evalClassPathFile(String fileName) throws Throwable {
         String f = getClass().getClassLoader().getResource(fileName).getFile();
         return evalFile(f);
     }
 
-    public Object evalFile(String fileName) {
+    public Object evalFile(String fileName) throws Throwable {
         File f = new File(fileName);
         String code = TextFileUtils.read(f, TextFileUtils.UTF8);
         Object r = interpret(code, fileName);

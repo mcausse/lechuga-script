@@ -31,7 +31,7 @@ public class CustomFunc implements Func {
     }
 
     @Override
-    public Object eval(TokenAt tokenAt, Evaluator ev__/* XXX */, List<Object> args) {
+    public Object eval(TokenAt tokenAt, Evaluator ev__/* XXX */, List<Object> args) throws Throwable {
 
         /*
             fa binding de cada nom d'argument declarat, amb el valor que se li passa

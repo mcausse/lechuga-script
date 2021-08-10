@@ -58,7 +58,7 @@ public class CustomFuncTest {
 
     @ParameterizedTest
     @MethodSource("expressionProvider")
-    void testEvalCustomFunc(ListAst customFuncArgDefs, List<Ast> customFuncBodies, String __, List<Object> invocationArgs, Object expectedResult) {
+    void testEvalCustomFunc(ListAst customFuncArgDefs, List<Ast> customFuncBodies, String __, List<Object> invocationArgs, Object expectedResult) throws Throwable {
         CustomFunc customFunc = new CustomFunc(customFuncArgDefs, customFuncBodies);
         Evaluator ev = new Evaluator(new Environment(null), Collections.emptyList());
 

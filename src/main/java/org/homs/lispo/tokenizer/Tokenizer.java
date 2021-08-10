@@ -36,22 +36,55 @@ public class Tokenizer implements Iterator<Token> {
 
         switch (c) {
             case '"': {
-                p++; // chupa "
-                StringBuilder s = new StringBuilder();
-                int k = p;
-                while (k < program.length() && program.charAt(k) != '"') {
-                    if (program.charAt(k) == '\\' && k + 1 < program.length() && program.charAt(k + 1) == '"') {
+
+
+                /*
+                    // TODO hi-lang?
+                    if pointerStartsWith("\"\"\"") {
+                        consume("\"\"\"")
+                        String strValue = chupaUntil("\"\"\"");
+                        consume("\"\"\"")
+                        [...]
+                    } else {
+                        [...]
+                    }
+                */
+
+                if (program.startsWith("\"\"\"", p)) {
+                    p += 3; // chupa """
+                    StringBuilder s = new StringBuilder();
+                    int k = p;
+                    while (k + "\"\"\"".length() < program.length() && !program.startsWith("\"\"\"", k)) {
+                        if (program.charAt(k) == '\\' && k + 1 < program.length() /*&& program.charAt(k + 1) == '"'*/) {
+                            k++;
+                        }
+                        s.append(program.charAt(k));
                         k++;
                     }
-                    s.append(program.charAt(k));
-                    k++;
+                    if (k >= program.length()) {
+                        throw new RuntimeException("expected closing \"\"\" but eof; opened at " + sourceDesc + ":" + row + ":" + col);
+                    }
+                    String value = s.toString();
+                    p = k + 3; // chupa """
+                    r = new Token(EToken.STRING, value, sourceDesc, row, col);
+                } else {
+                    p++; // chupa "
+                    StringBuilder s = new StringBuilder();
+                    int k = p;
+                    while (k < program.length() && program.charAt(k) != '"') {
+                        if (program.charAt(k) == '\\' && k + 1 < program.length() /*&& program.charAt(k + 1) == '"'*/) {
+                            k++;
+                        }
+                        s.append(program.charAt(k));
+                        k++;
+                    }
+                    if (k >= program.length()) {
+                        throw new RuntimeException("expected closing \" but eof; opened at " + sourceDesc + ":" + row + ":" + col);
+                    }
+                    String value = s.toString();
+                    p = k + 1; // chupa "
+                    r = new Token(EToken.STRING, value, sourceDesc, row, col);
                 }
-                if (k >= program.length()) {
-                    throw new RuntimeException("expected closing \" but eof; opened at " + sourceDesc + ":" + row + ":" + col);
-                }
-                String value = s.toString();
-                p = k + 1; // chupa "
-                r = new Token(EToken.STRING, value, sourceDesc, row, col);
                 break;
             }
             case ':': {
