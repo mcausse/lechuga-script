@@ -1,11 +1,16 @@
 (defn println [...xs]
     (defn println-one-arg [x]
-        ((field-static :java.lang.System :out) :println [x]))
+        ((field-static :java.lang.System :out) :println [x])
+        x)
     (for-each println-one-arg xs))
 
 (println "Aló world!"
          "this is a first contact with"
          "this beautiful scripting language")
+
+(println """Aló world!
+         this is a first contact with
+         this beautiful scripting language""")
 
 
 
@@ -73,6 +78,8 @@
 (assert/ne [1 2 3] [1 2 3 4])
 (assert/eq {[1 :one]} {[1 :one]})
 (assert/ne {[1 :one]} {[1 :two]})
+
+(assert/eq 3 (println 1 2 3))
 
 (try-catch
     (assert/fail "an exception should be thrown.")
@@ -181,6 +188,9 @@
     (fn [e]
         (assert/eq "list/tail: the list is empty" (e :getMessage)))
 )
+(assert/eq [3] (list/tail (list/tail [1 2 3])))
+(assert/eq 3 (list/head (list/tail (list/tail [1 2 3]))))
+(assert/eq [] (list/tail (list/tail (list/tail [1 2 3]))))
 
 (defn reduce [f l]
     (def acc (list/head l))
@@ -223,6 +233,16 @@
     (assert/eq "oo" (twice :o))
     (assert/eq "oooo" (twice2 :o))
 )
+
+
+
+(defn composite [...fs]
+    (fn [value]
+        (def r value)
+        (for-each
+            (fn [f] (set r (f r)))
+            fs)
+        r))
 
 ;;
 ;; COMPOSITE
@@ -269,19 +289,6 @@
         (assert/eq "(on3-two-thr33)" value)
     )
 
-    ;; TODO tenim algun test que verifiqui recursivitat, rollo factorial ???
-
-    (defn composite [...fs]
-        (fn [value]
-            (def r value)
-            (for-each
-                (fn [f] (set r (f r)))
-                fs
-            )
-            r
-        )
-    )
-
     (multi
         (def xxx
             (composite
@@ -316,6 +323,41 @@
         )
     )
 )
+
+
+;;;     (defn jou [a]
+;;;         (jou (println (concat "." a)))
+;;;     )
+;;;     (jou "123")
+
+;; TODO tenim algun test que verifiqui recursivitat, rollo factorial ???
+;;
+;; RECURSIVE REVERSE
+;;
+(defn list/append [l a]
+    (def r [])
+    (r :addAll [l])
+    (r :add [a])
+    r
+)
+(multi
+    (def l1 [])
+    (def l2 (list/append l1 "a"))
+    (assert/eq [] l1)
+    (assert/eq [:a] l2)
+)
+
+
+(defn list/reverse2 [l]
+    (println l (list/empty? l))
+    (if (list/empty? l)
+        []
+        (list/append (list/reverse2 (list/tail l)) (list/head l))))
+
+(assert/eq [3 2 1] (list/reverse2 [1 2 3]))
+
+
+
 
 
 

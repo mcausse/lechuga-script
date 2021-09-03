@@ -188,8 +188,14 @@ public class InterpreterTest {
 
                 Arguments.of("\"\"\"arrr\nrrrgh\"\"\"", "arrr\nrrrgh"),
 
-                
-                Arguments.of("true", true)
+                Arguments.of(
+                        "(defn juas [a] null)   \n"+
+                        "(defn jou [a]          \n"+
+                        "   (juas :b)           \n"+
+                        "   a                   \n"+
+                        ")                      \n"+
+                        "(jou :a)               \n",
+                        "a")
         );
     }
 

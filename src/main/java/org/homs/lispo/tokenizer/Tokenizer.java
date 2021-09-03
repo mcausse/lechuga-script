@@ -37,19 +37,6 @@ public class Tokenizer implements Iterator<Token> {
         switch (c) {
             case '"': {
 
-
-                /*
-                    // TODO hi-lang?
-                    if pointerStartsWith("\"\"\"") {
-                        consume("\"\"\"")
-                        String strValue = chupaUntil("\"\"\"");
-                        consume("\"\"\"")
-                        [...]
-                    } else {
-                        [...]
-                    }
-                */
-
                 if (program.startsWith("\"\"\"", p)) {
                     p += 3; // chupa """
                     StringBuilder s = new StringBuilder();

@@ -80,7 +80,7 @@ public class Interpreter {
             bodies.add(body);
         }
 
-        return new CustomFunc(argDefs, bodies);
+        return new CustomFunc(ev, argDefs, bodies);
     };
     final Func funcDefn = (tokenAt, ev, args) -> {
         SymbolAst nameAst = (SymbolAst) args.get(0);
@@ -91,7 +91,7 @@ public class Interpreter {
             Ast body = (Ast) args.get(i);
             bodies.add(body);
         }
-        Object r = new CustomFunc(argDefs, bodies);
+        Object r = new CustomFunc(ev, argDefs, bodies);
 
         String name = nameAst.value;
         ev.getEnvironment().def(name, r);
@@ -222,9 +222,9 @@ public class Interpreter {
         fn2Args.add(new ListAst(fnToken, argDefsHead));
         fn2Args.addAll(f.bodies);
 
-        ParenthesisAst fn2 = new ParenthesisAst(fnToken, new SymbolAst(fnToken, "fn"), fn2Args);
+        ParenthesisAst fn2 = new ParenthesisAst(fnToken, new SymbolAst(fnToken, "fn" ), fn2Args);
 
-        return new CustomFunc(new ListAst(fnToken, argDefsTail), Arrays.asList(fn2));
+        return new CustomFunc(ev,new ListAst(fnToken, argDefsTail), Arrays.asList(fn2));
     };
 
     final Func funcThrow = (tokenAt, ev, args) -> {

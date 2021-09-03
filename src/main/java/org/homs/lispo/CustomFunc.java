@@ -13,12 +13,14 @@ import java.util.StringJoiner;
 
 public class CustomFunc implements Func {
 
+    final Evaluator ev;
     final ListAst argDefs;
     final List<String> argNames;
     final List<Ast> bodies;
 
-    public CustomFunc(ListAst argDefs, List<Ast> bodies) {
+    public CustomFunc(final Evaluator ev, ListAst argDefs, List<Ast> bodies) {
         super();
+        this.ev = ev;
         this.argDefs = argDefs;
         this.bodies = bodies;
         this.argNames = new ArrayList<>();
@@ -33,6 +35,8 @@ public class CustomFunc implements Func {
     @Override
     public Object eval(TokenAt tokenAt, Evaluator ev__/* XXX */, List<Object> args) throws Throwable {
 
+        Evaluator ev2 = new Evaluator(ev);
+
         /*
             fa binding de cada nom d'argument declarat, amb el valor que se li passa
             en la crida, en un nou context de {@link Evaluator}.
@@ -42,7 +46,7 @@ public class CustomFunc implements Func {
 
             final Object argValue;
             {
-                if (argName.startsWith("...")) {
+                if (argName.startsWith("..." )) {
                     argName = argName.substring("...".length());
                     List<Object> v = new ArrayList<>();
                     for (int j = i; j < args.size(); j++) {
@@ -54,13 +58,13 @@ public class CustomFunc implements Func {
                 }
             }
 
-            ev__.getEnvironment().def(argName, argValue);
+            ev2.getEnvironment().def(argName, argValue);
         }
 
         /*
             evalua els bodies amb el nou context
          */
-        Evaluator ev2 = new Evaluator(ev__);
+//        Evaluator ev2 = new Evaluator(ev__);
         Object r = null;
         for (Ast body : bodies) {
             r = ev2.evalAst(body);
@@ -71,15 +75,15 @@ public class CustomFunc implements Func {
     @Override
     public String toString() {
         StringBuilder s = new StringBuilder();
-        s.append("(fn ");
+        s.append("(fn " );
         s.append(argDefs);
-        s.append(" ");
-        StringJoiner j = new StringJoiner(" ");
+        s.append(" " );
+        StringJoiner j = new StringJoiner(" " );
         for (Ast body : bodies) {
             j.add(body.toString());
         }
         s.append(j);
-        s.append(")");
+        s.append(")" );
         return s.toString();
     }
 }
