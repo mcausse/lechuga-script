@@ -1,8 +1,12 @@
+
+
 (defn println [...xs]
-    (defn println-one-arg [x]
-        ((field-static :java.lang.System :out) :println [x])
+    (defn print-one-arg [x]
+        ((field-static :java.lang.System :out) :print [x])
         x)
-    (for-each println-one-arg xs))
+    (def r (for-each print-one-arg xs))
+    ((field-static :java.lang.System :out) :println)
+    r)
 
 (println "Aló world!"
          "this is a first contact with"
@@ -11,7 +15,6 @@
 (println """Aló world!
          this is a first contact with
          this beautiful scripting language""")
-
 
 
 (defn not [a]
@@ -118,11 +121,6 @@
 
 
 
-
-
-
-
-
 (defn mapcar [f l]
     (def r [])
     (for-each
@@ -208,12 +206,6 @@
     :java.lang.RuntimeException
     (fn [e] (println e))
 )
-
-;;; TODO que es treballi amb BigInteger/BigDecimal !!!! aritmetica gratis
-
-;;; TODO posar location, home
-;;; (assert/fail "aaaa")
-
 
 (multi
     (defn tri [a b c] (concat a b c))
@@ -325,12 +317,7 @@
 )
 
 
-;;;     (defn jou [a]
-;;;         (jou (println (concat "." a)))
-;;;     )
-;;;     (jou "123")
 
-;; TODO tenim algun test que verifiqui recursivitat, rollo factorial ???
 ;;
 ;; RECURSIVE REVERSE
 ;;
@@ -348,14 +335,103 @@
 )
 
 
-(defn list/reverse2 [l]
-    (println l (list/empty? l))
+(defn list/reverse [l]
     (if (list/empty? l)
         []
-        (list/append (list/reverse2 (list/tail l)) (list/head l))))
+        (list/append (list/reverse (list/tail l)) (list/head l))))
 
-(assert/eq [3 2 1] (list/reverse2 [1 2 3]))
+(assert/eq [] (list/reverse []))
+(assert/eq [3 2 1] (list/reverse [1 2 3]))
 
+
+
+
+(assert/eq 0 (+))
+(assert/eq 6 (+ 1 2 3))
+(assert/eq 0 (-))
+(assert/eq -4 (- 1 2 3))
+(assert/eq 0 (*))
+(assert/eq 6 (* 1 2 3))
+(assert/eq 0 (/))
+(assert/eq 0 (/ 1 2 3))
+(assert/eq 0.16666666666666666 (/ 1.0 2.0 3.0))
+(assert/eq 0 (%))
+(assert/eq 1 (% 5 2))
+(assert/eq 0 (% 4 2))
+
+(assert/eq 3 (to-int 3.14159))
+(assert/eq 3.0 (to-double 3))
+
+
+(defn math/fact [x]
+    (set x (to-int x))
+	(if (eq? x 1)
+		1
+		(* x (math/fact (- x 1)))))
+
+(assert/eq 120 (math/fact 5))
+(assert/eq 120 (math/fact 5.1))
+(assert/eq 3628800 (math/fact 10))
+
+
+
+
+
+
+
+(defn < [a b]
+	(call-static :org.homs.lispo.util.ComparableUtils :lt [a b]))
+
+(defn <= [a b]
+	(call-static :org.homs.lispo.util.ComparableUtils :le [a b]))
+
+(defn > [a b]
+	(call-static :org.homs.lispo.util.ComparableUtils :gt [a b]))
+
+(defn >= [a b]
+	(call-static :org.homs.lispo.util.ComparableUtils :ge [a b]))
+
+(defn = [a b]
+	(call-static :org.homs.lispo.util.ComparableUtils :eq [a b]))
+
+(defn <> [a b]
+	(call-static :org.homs.lispo.util.ComparableUtils :ne [a b]))
+
+
+(assert/eq true (< 2 3))
+(assert/eq true (<= 2 3))
+(assert/eq false (> 2 3))
+(assert/eq false (>= 2 3))
+(assert/eq false (= 2 3))
+(assert/eq true (<> 2 3))
+(assert/eq false (= 2 1))
+(assert/eq true (= 2 2))
+(assert/eq 0 (% 2 2))
+(assert/eq 1 (% 3 2))
+
+
+(defn dec [x]  (- x 1))
+(defn inc [x]  (+ x 1))
+
+(assert/eq 3 (dec 4))
+(assert/eq 5 (inc 4))
+
+
+
+
+(defn math/abs [x] (call-static :java.lang.Math :abs [x]))
+
+(assert/eq 5 (math/abs -5))
+(assert/eq 5 (math/abs 5))
+
+
+
+
+
+
+;;; TODO posar location, home
+;;;
+(assert/fail "aaaa")
 
 
 

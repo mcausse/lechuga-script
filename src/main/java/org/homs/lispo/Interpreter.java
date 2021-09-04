@@ -11,6 +11,7 @@ import org.homs.lispo.tokenizer.EToken;
 import org.homs.lispo.tokenizer.Token;
 import org.homs.lispo.tokenizer.TokenAt;
 import org.homs.lispo.tokenizer.Tokenizer;
+import org.homs.lispo.util.AssertionError;
 import org.homs.lispo.util.ReflectUtils;
 import org.homs.lispo.util.TextFileUtils;
 
@@ -224,11 +225,15 @@ public class Interpreter {
 
         ParenthesisAst fn2 = new ParenthesisAst(fnToken, new SymbolAst(fnToken, "fn" ), fn2Args);
 
-        return new CustomFunc(ev,new ListAst(fnToken, argDefsTail), Arrays.asList(fn2));
+        return new CustomFunc(ev, new ListAst(fnToken, argDefsTail), Arrays.asList(fn2));
     };
 
     final Func funcThrow = (tokenAt, ev, args) -> {
         Throwable ex = (Throwable) args.get(0);
+//        if (ex instanceof AssertionError) {
+//            ((AssertionError)ex).setTokenAtLocation
+//        }
+//        Throwable wrapper = new RuntimeException(ex.getMessage() + "; " + tokenAt.toString(), ex);
         throw ex;
     };
 
@@ -291,6 +296,20 @@ public class Interpreter {
         register("try-catch", true, funcTryCatch);
 
         register("is-null?", false, funcIsNull);
+
+
+        register("+", false, ArithmeticFuncs.funcAdd);
+        register("-", false, ArithmeticFuncs.funcSub);
+        register("*", false, ArithmeticFuncs.funcMul);
+        register("/", false, ArithmeticFuncs.funcDiv);
+        register("%", false, ArithmeticFuncs.funcMod);
+
+        register("to-byte", false, ArithmeticFuncs.funcToByte);
+        register("to-short", false, ArithmeticFuncs.funcToShort);
+        register("to-int", false, ArithmeticFuncs.funcToInt);
+        register("to-long", false, ArithmeticFuncs.funcToLong);
+        register("to-float", false, ArithmeticFuncs.funcToFloat);
+        register("to-double", false, ArithmeticFuncs.funcToDouble);
     }
 
     public void register(String name, Object value) {
