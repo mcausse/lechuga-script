@@ -87,7 +87,7 @@
 (try-catch
     (assert/fail "an exception should be thrown.")
     :org.homs.lispo.util.AssertionError
-    (fn [e]
+    (fn [e at]
         (assert/eq "an exception should be thrown." e.getMessage)))
 
 
@@ -198,7 +198,19 @@
         (set ll (list/tail ll)))
     acc)
 
-(assert/eq "a-b-c" (reduce (fn[a e](concat a "-" e)) [:a :b :c]))
+; (assert/eq "" (reduce (fn [a e] (concat a "-" e)) []))
+(assert/eq "a-b-c" (reduce (fn [a e] (concat a "-" e)) [:a :b :c]))
+
+(defn str/join [sep ss]
+    (if (list/empty? ss)
+        ""
+        (reduce (fn [a e] (concat a sep e)) ss)))
+
+(assert/eq "" (str/join "-" []))
+(assert/eq "a-b-c" (str/join "-" [:a :b :c]))
+
+
+
 
 (try-catch
     ;(throw (new :org.homs.lispo.util.AssertionError [:fallaste]))
@@ -285,6 +297,8 @@
         (def xxx
             (composite
                 (c/str/join "-")))
+        (assert/eq "" (xxx []))
+        (assert/eq "a" (xxx [:a]))
         (assert/eq "one-two-three" (xxx [:one :two :three]))
     )
     (multi
@@ -292,6 +306,8 @@
             (composite
                 (c/str/join "-")
                 (c/str/e3encoder)))
+        (assert/eq "" (xxx []))
+        (assert/eq "a" (xxx [:a]))
         (assert/eq "on3-two-thr33" (xxx [:one :two :three]))
     )
     (multi
@@ -300,6 +316,8 @@
                 (c/str/join "-")
                 (c/str/e3encoder)
                 (c/str/wrap-with "(" ")")))
+        (assert/eq "()" (xxx []))
+        (assert/eq "(a)" (xxx [:a]))
         (assert/eq "(on3-two-thr33)" (xxx [:one :two :three]))
     )
     (multi
@@ -325,8 +343,8 @@
     (def r [])
     (r :addAll [l])
     (r :add [a])
-    r
-)
+    r)
+
 (multi
     (def l1 [])
     (def l2 (list/append l1 "a"))
@@ -342,6 +360,20 @@
 
 (assert/eq [] (list/reverse []))
 (assert/eq [3 2 1] (list/reverse [1 2 3]))
+
+
+(defn list/cons [e l]
+    (def r [])
+    (r :add [e])
+    (r :addAll [l])
+    r)
+
+(multi
+    (assert/eq [[]] (list/cons [] []))
+    (assert/eq [1] (list/cons 1 []))
+    (assert/eq [1 2] (list/cons 1 [2]))
+    (assert/eq [[1] 2] (list/cons [1] [2]))
+)
 
 
 
@@ -426,15 +458,78 @@
 
 
 
+(defn seq [min max]
+    (def r [])
+    (def n min)
+    (while (< n max)
+        (r :add [n])
+        (set n (inc n)))
+    r)
+
+(multi
+    (assert/eq [] (seq 2 0))
+    (assert/eq [] (seq 2 2))
+    (assert/eq [2] (seq 2 3))
+    (assert/eq [2 3] (seq 2 4))
+    (assert/eq [2 3 4] (seq 2 5))
+)
 
 
 
-;;; TODO posar location, home
+;;; XXX posar location, home
 ;;;
-(assert/fail "aaaa")
+;;; (assert/fail "aaaa")
 
 
+(defn list/remove-if [f l]
+    (def r [])
+    (for-each
+        (fn [e]
+            (if (not (f e))
+                (r :add [e])))
+        l)
+    r)
+
+(defn list/remove-if-not [f l]
+    (def r [])
+    (for-each
+        (fn [e]
+            (if (f e)
+                (r :add [e])))
+        l)
+    r)
 
 
+(multi
+    (defn is-parell? [x]
+        (= (% x 2) 0))
+
+    (assert/eq [] (list/remove-if is-parell? []))
+    (assert/eq [] (list/remove-if-not is-parell? []))
+
+    (assert/eq [1 3] (list/remove-if is-parell? [1 2 3 4]))
+    (assert/eq [2 4] (list/remove-if-not is-parell? [1 2 3 4]))
+
+    (assert/eq [1 3 5 7] (list/remove-if is-parell? [1 2 3 4 5 6 7 8]))
+    (assert/eq [2 4 6 8] (list/remove-if-not is-parell? [1 2 3 4 5 6 7 8]))
+)
+
+
+(defn primos [n]
+    (def r (seq 2 n))
+    (for-each
+        (fn [x]
+            (set r
+                (list/remove-if
+                    (fn [xx]
+                        (and (> xx x) (= 0 (% xx x))))
+                    r)))
+        (seq 2 n))
+    r)
+
+(assert/eq [2 3 5 7] (primos 10))
+(assert/eq
+    [2 3 5 7 11 13 17 19 23 29 31 37 41 43 47 53 59 61 67 71 73 79 83 89 97]
+    (primos 100))
 
 true

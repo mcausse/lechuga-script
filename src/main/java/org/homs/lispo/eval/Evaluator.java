@@ -6,6 +6,7 @@ import org.homs.lispo.util.ReflectUtils;
 
 import java.util.*;
 import java.util.Map.Entry;
+import org.homs.lispo.util.AssertionError;
 
 public class Evaluator {
 
@@ -28,19 +29,6 @@ public class Evaluator {
         this.env = new Environment(ev.env);
         this.lazyFuncNames = ev.lazyFuncNames;
     }
-
-//    public Object eval(String sourceDesc, String code) {
-//        Tokenizer t = new Tokenizer(code, sourceDesc);
-//        Parser ev = new Parser(t);
-//        List<Ast> asts = ev.parse();
-//
-//        Object r = null;
-//        for (Ast ast : asts) {
-//            r = evalAst(ast);
-//        }
-//        return r;
-//    }
-
 
     public Object evalAst(Ast ast) throws Throwable {
 
@@ -167,8 +155,9 @@ public class Evaluator {
                 throw new RuntimeException(ast.getClass().getName());
             }
         } catch (Exception e) {
-//            e.printStackTrace();//TODO
             throw new RuntimeException("error evaluating: " + ast.toString() + "; " + ast.getTokenAt().toString(), e);
+        } catch (AssertionError e) {
+            throw new AssertionError(e.getMessage(),  new AssertionError(ast.toString() + "; " + ast.getTokenAt().toString()));
         }
     }
 

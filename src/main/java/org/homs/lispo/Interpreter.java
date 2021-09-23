@@ -11,7 +11,7 @@ import org.homs.lispo.tokenizer.EToken;
 import org.homs.lispo.tokenizer.Token;
 import org.homs.lispo.tokenizer.TokenAt;
 import org.homs.lispo.tokenizer.Tokenizer;
-import org.homs.lispo.util.AssertionError;
+import org.homs.lispo.util.ArithmeticFuncs;
 import org.homs.lispo.util.ReflectUtils;
 import org.homs.lispo.util.TextFileUtils;
 
@@ -254,7 +254,7 @@ public class Interpreter {
             }
             if (exceptionClass.isAssignableFrom(e.getClass())) {
                 Func catchFunc = (Func) ev.evalAst(catchAst);
-                return catchFunc.eval(tokenAt, ev, Arrays.asList(e));
+                return catchFunc.eval(tokenAt, ev, Arrays.asList(e, tokenAt));
             } else {
                 throw e;
             }

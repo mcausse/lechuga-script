@@ -1,4 +1,4 @@
-package org.homs.lispo;
+package org.homs.lispo.util;
 
 import org.homs.lispo.eval.Func;
 
