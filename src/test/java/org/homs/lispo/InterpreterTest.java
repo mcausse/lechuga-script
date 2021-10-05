@@ -108,7 +108,11 @@ public class InterpreterTest {
                 Arguments.of("((fn [x] (if x 1 2)) false)", 2),
                 Arguments.of("(def identity (fn[x]x)) (identity 42)", 42),
                 Arguments.of("((fn [x] x) 1 2 3)", 1),
+                Arguments.of("((fn [...x] x))", Arrays.asList()),
                 Arguments.of("((fn [...x] x) 1 2 3)", Arrays.asList(1, 2, 3)),
+
+                Arguments.of("((fn [x?] x))", null),
+                Arguments.of("((fn [x?] x)2)", 2),
 
                 Arguments.of("(defn identity [x] x) (identity 1)", 1),
                 Arguments.of("((defn identity [x] x) 1)", 1),
@@ -189,12 +193,12 @@ public class InterpreterTest {
                 Arguments.of("\"\"\"arrr\nrrrgh\"\"\"", "arrr\nrrrgh"),
 
                 Arguments.of(
-                        "(defn juas [a] null)   \n"+
-                        "(defn jou [a]          \n"+
-                        "   (juas :b)           \n"+
-                        "   a                   \n"+
-                        ")                      \n"+
-                        "(jou :a)               \n",
+                        "(defn juas [a] null)   \n" +
+                                "(defn jou [a]          \n" +
+                                "   (juas :b)           \n" +
+                                "   a                   \n" +
+                                ")                      \n" +
+                                "(jou :a)               \n",
                         "a")
         );
     }
@@ -223,5 +227,16 @@ public class InterpreterTest {
         Object result = i.evalClassPathFile(scriptName);
 
         assertThat(result).isEqualTo(expectedResult);
+
+//        var k = 1;
+//        for (var v : i.env.getVariables().keySet()) {
+//            var s = String.format("%-15s", v);
+//            if (k % 5 == 0) {
+//                System.out.println(s);
+//            } else {
+//                System.out.print(s);
+//            }
+//            k++;
+//        }
     }
 }

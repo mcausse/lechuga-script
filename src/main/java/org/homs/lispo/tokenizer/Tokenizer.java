@@ -41,14 +41,14 @@ public class Tokenizer implements Iterator<Token> {
                     p += 3; // chupa """
                     StringBuilder s = new StringBuilder();
                     int k = p;
-                    while (k + "\"\"\"".length() < program.length() && !program.startsWith("\"\"\"", k)) {
+                    while (k + "\"\"\"".length() <= program.length() && !program.startsWith("\"\"\"", k)) {
                         if (program.charAt(k) == '\\' && k + 1 < program.length() /*&& program.charAt(k + 1) == '"'*/) {
                             k++;
                         }
                         s.append(program.charAt(k));
                         k++;
                     }
-                    if (k >= program.length()) {
+                    if (k + "\"\"\"".length() > program.length()) {
                         throw new RuntimeException("expected closing \"\"\" but eof; opened at " + sourceDesc + ":" + row + ":" + col);
                     }
                     String value = s.toString();

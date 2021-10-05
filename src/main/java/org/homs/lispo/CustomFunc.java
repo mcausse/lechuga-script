@@ -44,9 +44,20 @@ public class CustomFunc implements Func {
         for (int i = 0; i < argNames.size(); i++) {
             String argName = argNames.get(i);
 
+
             final Object argValue;
             {
-                if (argName.startsWith("..." )) {
+                if (argName.endsWith("?")) {
+                    // remove the ending "?" character
+                    argName = argName.substring(0, argName.length() - 1);
+
+                    if (i >= args.size()) {
+                        // optional, and not provided argument value => null
+                        argValue = null;
+                    } else {
+                        argValue = args.get(i);
+                    }
+                } else if (argName.startsWith("...")) {
                     argName = argName.substring("...".length());
                     List<Object> v = new ArrayList<>();
                     for (int j = i; j < args.size(); j++) {
@@ -75,15 +86,15 @@ public class CustomFunc implements Func {
     @Override
     public String toString() {
         StringBuilder s = new StringBuilder();
-        s.append("(fn " );
+        s.append("(fn ");
         s.append(argDefs);
-        s.append(" " );
-        StringJoiner j = new StringJoiner(" " );
+        s.append(" ");
+        StringJoiner j = new StringJoiner(" ");
         for (Ast body : bodies) {
             j.add(body.toString());
         }
         s.append(j);
-        s.append(")" );
+        s.append(")");
         return s.toString();
     }
 }

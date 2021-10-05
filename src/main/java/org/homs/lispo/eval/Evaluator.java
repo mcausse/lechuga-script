@@ -2,11 +2,12 @@ package org.homs.lispo.eval;
 
 import org.homs.lispo.Environment;
 import org.homs.lispo.parser.ast.*;
+import org.homs.lispo.util.AssertionError;
 import org.homs.lispo.util.ReflectUtils;
+import org.homs.lispo.util.ValidationError;
 
 import java.util.*;
 import java.util.Map.Entry;
-import org.homs.lispo.util.AssertionError;
 
 public class Evaluator {
 
@@ -157,7 +158,9 @@ public class Evaluator {
         } catch (Exception e) {
             throw new RuntimeException("error evaluating: " + ast.toString() + "; " + ast.getTokenAt().toString(), e);
         } catch (AssertionError e) {
-            throw new AssertionError(e.getMessage(),  new AssertionError(ast.toString() + "; " + ast.getTokenAt().toString()));
+            throw new AssertionError(e.getMessage(), new AssertionError(ast + "; " + ast.getTokenAt().toString()));
+        } catch (ValidationError e) {
+            throw new ValidationError(e.getMessage(), new ValidationError(ast + "; " + ast.getTokenAt().toString()));
         }
     }
 

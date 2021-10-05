@@ -23,32 +23,32 @@ public class CustomFuncTest {
     static Stream<Arguments> expressionProvider() {
         return Stream.of(
                 Arguments.of(
-                        new ListAst(null, Arrays.asList(new SymbolAst(null, "x" ))),
-                        Arrays.asList(new SymbolAst(null, "x" )),
+                        new ListAst(null, Arrays.asList(new SymbolAst(null, "x"))),
+                        Arrays.asList(new SymbolAst(null, "x")),
                         "(fn [x] x)",
                         Arrays.asList(42),
                         42
                 ),
 
                 Arguments.of(
-                        new ListAst(null, Arrays.asList(new SymbolAst(null, "...x" ))),
-                        Arrays.asList(new SymbolAst(null, "x" )),
+                        new ListAst(null, Arrays.asList(new SymbolAst(null, "...x"))),
+                        Arrays.asList(new SymbolAst(null, "x")),
                         "(fn [...x] x)",
                         Arrays.asList(1, 2, 3),
                         Arrays.asList(1, 2, 3)
                 ),
 
                 Arguments.of(
-                        new ListAst(null, Arrays.asList(new SymbolAst(null, "x" ), new SymbolAst(null, "y" ))),
-                        Arrays.asList(new SymbolAst(null, "x" )),
+                        new ListAst(null, Arrays.asList(new SymbolAst(null, "x"), new SymbolAst(null, "y"))),
+                        Arrays.asList(new SymbolAst(null, "x")),
                         "(fn [x y] x)",
                         Arrays.asList(42, 43),
                         42
                 ),
 
                 Arguments.of(
-                        new ListAst(null, Arrays.asList(new SymbolAst(null, "x" ), new SymbolAst(null, "y" ))),
-                        Arrays.asList(new SymbolAst(null, "y" )),
+                        new ListAst(null, Arrays.asList(new SymbolAst(null, "x"), new SymbolAst(null, "y"))),
+                        Arrays.asList(new SymbolAst(null, "y")),
                         "(fn [x y] y)",
                         Arrays.asList(42, 43),
                         43
@@ -57,7 +57,7 @@ public class CustomFuncTest {
     }
 
     @ParameterizedTest
-    @MethodSource("expressionProvider" )
+    @MethodSource("expressionProvider")
     void testEvalCustomFunc(ListAst customFuncArgDefs, List<Ast> customFuncBodies, String __, List<Object> invocationArgs, Object expectedResult) throws Throwable {
         Evaluator ev = new Evaluator(new Environment(null), Collections.emptyList());
         CustomFunc customFunc = new CustomFunc(ev, customFuncArgDefs, customFuncBodies);
@@ -68,7 +68,7 @@ public class CustomFuncTest {
     }
 
     @ParameterizedTest
-    @MethodSource("expressionProvider" )
+    @MethodSource("expressionProvider")
     void testToString(ListAst customFuncArgDefs, List<Ast> customFuncBodies, String expectedToString, List<Object> __1, Object __2) {
         CustomFunc customFunc = new CustomFunc(null, customFuncArgDefs, customFuncBodies);
 

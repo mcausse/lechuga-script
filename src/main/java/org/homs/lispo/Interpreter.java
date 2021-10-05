@@ -33,16 +33,18 @@ public class Interpreter {
             }
         }
 
-        public static void validateBoolean(TokenAt tokenAt, Object value) {
-            if (!(value instanceof Boolean)) {
+        public static <T> T validateNotNullType(TokenAt tokenAt, Class<T> expectedType, Object value) {
+
+            if (value == null || !expectedType.isAssignableFrom(value.getClass())) {
                 String valueType;
                 if (value == null) {
                     valueType = "null";
                 } else {
                     valueType = value.getClass().getName();
                 }
-                throw new RuntimeException("a Boolean value is required, but obtained: '" + valueType + "; at " + tokenAt);
+                throw new RuntimeException("a <" + Boolean.class.getName() + "> value is required, but obtained: <" + valueType + ">; at " + tokenAt);
             }
+            return (T) value;
         }
     }
 
@@ -50,30 +52,32 @@ public class Interpreter {
 
     final Func funcDef = (TokenAt tokenAt, Evaluator ev, List<Object> args) -> {
         FuncUtils.verifyArgumentsNumber(tokenAt, 2, null, args);
-        String symbol = ((SymbolAst) args.get(0)).value;
+        SymbolAst symbolAst = FuncUtils.validateNotNullType(tokenAt, SymbolAst.class, args.get(0));
 
         Object v = null;
         for (int i = 1; i < args.size(); i++) {
             v = ev.evalAst((Ast) args.get(i));
         }
 
-        ev.getEnvironment().def(symbol, v);
+        ev.getEnvironment().def(symbolAst.value, v);
         return v;
     };
     final Func funcSet = (TokenAt tokenAt, Evaluator ev, List<Object> args) -> {
         FuncUtils.verifyArgumentsNumber(tokenAt, 2, null, args);
-        String symbol = ((SymbolAst) args.get(0)).value;
+        SymbolAst symbolAst = FuncUtils.validateNotNullType(tokenAt, SymbolAst.class, args.get(0));
 
         Object v = null;
         for (int i = 1; i < args.size(); i++) {
             v = ev.evalAst((Ast) args.get(i));
         }
 
-        ev.getEnvironment().set(symbol, v);
+        ev.getEnvironment().set(symbolAst.value, v);
         return v;
     };
     final Func funcFn = (tokenAt, ev, args) -> {
-        ListAst argDefs = (ListAst) args.get(0);
+        FuncUtils.verifyArgumentsNumber(tokenAt, 2, null, args);
+
+        ListAst argDefs = FuncUtils.validateNotNullType(tokenAt, ListAst.class, args.get(0));
 
         List<Ast> bodies = new ArrayList<>();
         for (int i = 1; i < args.size(); i++) {
@@ -84,8 +88,8 @@ public class Interpreter {
         return new CustomFunc(ev, argDefs, bodies);
     };
     final Func funcDefn = (tokenAt, ev, args) -> {
-        SymbolAst nameAst = (SymbolAst) args.get(0);
-        ListAst argDefs = (ListAst) args.get(1);
+        SymbolAst fnNameAst = FuncUtils.validateNotNullType(tokenAt, SymbolAst.class, args.get(0));
+        ListAst argDefs = FuncUtils.validateNotNullType(tokenAt, ListAst.class, args.get(1));
 
         List<Ast> bodies = new ArrayList<>();
         for (int i = 2; i < args.size(); i++) {
@@ -94,8 +98,7 @@ public class Interpreter {
         }
         Object r = new CustomFunc(ev, argDefs, bodies);
 
-        String name = nameAst.value;
-        ev.getEnvironment().def(name, r);
+        ev.getEnvironment().def(fnNameAst.value, r);
         return r;
     };
     final Func funcIf = (TokenAt tokenAt, Evaluator ev, List<Object> args) -> {
@@ -108,7 +111,7 @@ public class Interpreter {
         }
 
         Object conditionResult = ev.evalAst(condition);
-        FuncUtils.validateBoolean(tokenAt, conditionResult);
+        FuncUtils.validateNotNullType(tokenAt, Boolean.class, conditionResult);
         if ((Boolean) conditionResult) {
             Evaluator ev2 = new Evaluator(ev);
             return ev2.evalAst(thenPart);
@@ -122,11 +125,13 @@ public class Interpreter {
         }
     };
     final Func funcWhile = (tokenAt, ev, args) -> {
+        FuncUtils.verifyArgumentsNumber(tokenAt, 2, null, args);
         Ast condAst = (Ast) args.get(0);
 
         Object r = null;
         while (true) {
-            Boolean cond = (Boolean) ev.evalAst(condAst);
+            Object condResult = ev.evalAst(condAst);
+            Boolean cond = FuncUtils.validateNotNullType(tokenAt, Boolean.class, condResult);
             if (!cond) {
                 break;
             }
@@ -141,8 +146,12 @@ public class Interpreter {
     };
 
     final Func funcForEach = (tokenAt, ev, args) -> {
-        Func func = (Func) ev.evalAst((Ast) args.get(0));
-        Iterable<Object> it = (Iterable<Object>) ev.evalAst((Ast) args.get(1));
+        FuncUtils.verifyArgumentsNumber(tokenAt, 2, null, args);
+
+        Object evaluatedFunc = ev.evalAst((Ast) args.get(0));
+        Func func = FuncUtils.validateNotNullType(tokenAt, Func.class, evaluatedFunc);
+
+        Iterable<Object> it = FuncUtils.validateNotNullType(tokenAt, Iterable.class, ev.evalAst((Ast) args.get(1)));
 
         Object r = null;
         int index = 0;
@@ -155,33 +164,35 @@ public class Interpreter {
     };
 
     final Func funcNew = (tokenAt, ev, args) -> {
-        String className = (String) args.get(0);
-        List<?> argList = (List<?>) args.get(1);
+        FuncUtils.verifyArgumentsNumber(tokenAt, 2, args);
+        String className = FuncUtils.validateNotNullType(tokenAt, String.class, args.get(0));
+        List<?> argList = FuncUtils.validateNotNullType(tokenAt, List.class, args.get(1));
+
         return ReflectUtils.newInstance(className, argList.toArray());
     };
-    //    final Func funcCall = (tokenAt, ev, args) -> {
-//        Object target = args.get(0);
-//        String methodName = (String) args.get(1);
-//        List<?> argList = (List<?>) args.get(2);
-//        return ReflectUtils.callMethod(target, methodName, argList.toArray());
-//    };
+
     final Func funcCallStatic = (tokenAt, ev, args) -> {
-        String className = (String) args.get(0);
-        String methodName = (String) args.get(1);
-        List<?> argList = (List<?>) args.get(2);
+        FuncUtils.verifyArgumentsNumber(tokenAt, 3, args);
+        String className = FuncUtils.validateNotNullType(tokenAt, String.class, args.get(0));
+        String methodName = FuncUtils.validateNotNullType(tokenAt, String.class, args.get(1));
+        List<?> argList = FuncUtils.validateNotNullType(tokenAt, List.class, args.get(2));
+
         return ReflectUtils.callStaticMethod(className, methodName, argList.toArray());
     };
 
     final Func funcFieldStatic = (tokenAt, ev, args) -> {
-        String className = (String) args.get(0);
-        String fieldName = (String) args.get(1);
+        FuncUtils.verifyArgumentsNumber(tokenAt, 2, args);
+        String className = FuncUtils.validateNotNullType(tokenAt, String.class, args.get(0));
+        String fieldName = FuncUtils.validateNotNullType(tokenAt, String.class, args.get(1));
+
         return ReflectUtils.getStaticField(className, fieldName);
     };
 
     final Func funcAnd = (tokenAt, ev, args) -> {
+        FuncUtils.verifyArgumentsNumber(tokenAt, 1, null, args);
         for (Object arg : args) {
             Ast valueAst = (Ast) arg;
-            Boolean value = (Boolean) ev.evalAst(valueAst);
+            Boolean value = FuncUtils.validateNotNullType(tokenAt, Boolean.class, ev.evalAst(valueAst));
             if (!value) {
                 return false;
             }
@@ -189,9 +200,10 @@ public class Interpreter {
         return true;
     };
     final Func funcOr = (tokenAt, ev, args) -> {
+        FuncUtils.verifyArgumentsNumber(tokenAt, 1, null, args);
         for (Object arg : args) {
             Ast valueAst = (Ast) arg;
-            Boolean value = (Boolean) ev.evalAst(valueAst);
+            Boolean value = FuncUtils.validateNotNullType(tokenAt, Boolean.class, ev.evalAst(valueAst));
             if (value) {
                 return true;
             }
@@ -208,7 +220,8 @@ public class Interpreter {
                  (* x y z)))
     */
     final Func funcCurry = (tokenAt, ev, args) -> {
-        CustomFunc f = (CustomFunc) args.get(0);
+        FuncUtils.verifyArgumentsNumber(tokenAt, 1, args);
+        CustomFunc f = FuncUtils.validateNotNullType(tokenAt, CustomFunc.class, args.get(0));
 
         final List<Ast> argDefsHead;
         final List<Ast> argDefsTail;
@@ -223,29 +236,27 @@ public class Interpreter {
         fn2Args.add(new ListAst(fnToken, argDefsHead));
         fn2Args.addAll(f.bodies);
 
-        ParenthesisAst fn2 = new ParenthesisAst(fnToken, new SymbolAst(fnToken, "fn" ), fn2Args);
+        ParenthesisAst fn2 = new ParenthesisAst(fnToken, new SymbolAst(fnToken, "fn"), fn2Args);
 
         return new CustomFunc(ev, new ListAst(fnToken, argDefsTail), Arrays.asList(fn2));
     };
 
     final Func funcThrow = (tokenAt, ev, args) -> {
+        FuncUtils.verifyArgumentsNumber(tokenAt, 1, args);
         Throwable ex = (Throwable) args.get(0);
-//        if (ex instanceof AssertionError) {
-//            ((AssertionError)ex).setTokenAtLocation
-//        }
-//        Throwable wrapper = new RuntimeException(ex.getMessage() + "; " + tokenAt.toString(), ex);
         throw ex;
     };
 
-    final Func funcTryCatch = (tokenAt, ev, argAsts) -> {
-        Ast bodyAst = (Ast) argAsts.get(0);
-        Ast exceptionClassNameAst = (Ast) argAsts.get(1);
-        Ast catchAst = (Ast) argAsts.get(2);
+    final Func funcTryCatch = (tokenAt, ev, args) -> {
+        FuncUtils.verifyArgumentsNumber(tokenAt, 3, args);
+        Ast bodyAst = (Ast) args.get(0);
+        Ast exceptionClassNameAst = (Ast) args.get(1);
+        Ast catchAst = (Ast) args.get(2);
 
         try {
             return ev.evalAst(bodyAst);
         } catch (Throwable e) {
-            String exceptionClassName = (String) ev.evalAst(exceptionClassNameAst); // TODO
+            String exceptionClassName = FuncUtils.validateNotNullType(exceptionClassNameAst.getTokenAt(), String.class, ev.evalAst(exceptionClassNameAst));
             Class<?> exceptionClass;
             try {
                 exceptionClass = Class.forName(exceptionClassName);
@@ -262,6 +273,7 @@ public class Interpreter {
     };
 
     final Func funcIsNull = (tokenAt, ev, args) -> {
+        FuncUtils.verifyArgumentsNumber(tokenAt, 1, args);
         Object o = args.get(0);
         return o == null;
     };

@@ -120,4 +120,25 @@ public class TokenizerTest {
             assertThat(e.getMessage()).isEqualTo("expected closing \" but eof; opened at sourceDesc:1:6");
         }
     }
+
+    @Test
+    void throw_an_exception_when_tokenizing_a_program_with_an_unclosed_multiline_string() {
+
+        // Arrange a Tokenizer instance with the given program
+        Tokenizer t = new Tokenizer(":jou \"\"\"hohoho :juas", "sourceDesc");
+
+        // Act
+        try {
+            while (t.hasNext()) {
+                t.next();
+            }
+            fail("an exception should be thrown");
+        } catch (Exception e) {
+
+            // Assert that an exception is produced, and indicates that the
+            // problem is an unclosed string
+            assertThat(e).isInstanceOf(RuntimeException.class);
+            assertThat(e.getMessage()).isEqualTo("expected closing \"\"\" but eof; opened at sourceDesc:1:6");
+        }
+    }
 }
