@@ -1,5 +1,6 @@
 package org.homs.lispo;
 
+import org.homs.lispo.parser.ast.*;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -85,9 +86,20 @@ public class InterpreterTest {
                 Arguments.of("[42 3.14159 \"jou\" null false]", Arrays.asList(42, 3.14159, "jou", null, false)),
                 Arguments.of("{[1 :one][2 :two][3 :three]}", ordinalsMap),
 
+                Arguments.of("\"jo\\(\\)\\nu\"", "jo()nu"),
+
                 Arguments.of("(multi)", null),
                 Arguments.of("(multi 1)", 1),
                 Arguments.of("(multi 1 2 3)", 3),
+
+                Arguments.of("((quote null) :getClass)", NullAst.class),
+                Arguments.of("((quote true) :getClass)", BooleanAst.class),
+                Arguments.of("((quote 1) :getClass)", NumberAst.class),
+                Arguments.of("((quote :1) :getClass)", StringAst.class),
+                Arguments.of("((quote []) :getClass)", ListAst.class),
+                Arguments.of("((quote {}) :getClass)", MapAst.class),
+                Arguments.of("((quote pi) :getClass)", SymbolAst.class),
+                Arguments.of("((quote (multi 1 2 3)) :getClass)", ParenthesisAst.class),
 
                 Arguments.of("(def pi 3.14159)", 3.14159),
                 Arguments.of("(def pi 3.14159) pi", 3.14159),
@@ -158,6 +170,7 @@ public class InterpreterTest {
 
                 Arguments.of("(:jou :concat [:juas])", "joujuas"),
                 Arguments.of("(((:jou :getClass[]) :getSimpleName[]) :toUpperCase[])", "STRING"),
+                Arguments.of("(((:jou :getClass) :getSimpleName) :toUpperCase)", "STRING"),
                 Arguments.of("(:jou :substring [1])", "ou"),
                 Arguments.of("(:jou :substring [1 2])", "o"),
                 Arguments.of("([1 2 3] :get [0])", 1),
@@ -211,6 +224,10 @@ public class InterpreterTest {
         Object result = i.interpret(expression, "test");
 
         assertThat(result).isEqualTo(expectedResult);
+
+        System.out.println();
+        System.out.println(expression);
+        System.out.println("=> " + result);
     }
 
     static Stream<Arguments> scriptsProvider() {

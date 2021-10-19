@@ -50,6 +50,11 @@ public class Interpreter {
 
     final Func funcMulti = (tokenAt, ev, args) -> args.isEmpty() ? null : args.get(args.size() - 1);
 
+    final Func funcQuote = (tokenAt, ev, args) -> {
+        FuncUtils.verifyArgumentsNumber(tokenAt, 1, args);
+        return args.get(0);
+    };
+
     final Func funcDef = (TokenAt tokenAt, Evaluator ev, List<Object> args) -> {
         FuncUtils.verifyArgumentsNumber(tokenAt, 2, null, args);
         SymbolAst symbolAst = FuncUtils.validateNotNullType(tokenAt, SymbolAst.class, args.get(0));
@@ -278,12 +283,16 @@ public class Interpreter {
         return o == null;
     };
 
-
+    /**
+     * this is the root environment, with the builtin defined functions
+     */
     final Environment env = new Environment(null);
     final Set<String> lazyFuncNames = new LinkedHashSet<>();
 
     {
         register("multi", false, funcMulti);
+
+        register("quote", true, funcQuote);
 
         register("def", true, funcDef);
         register("set", true, funcSet);
@@ -338,7 +347,8 @@ public class Interpreter {
     public Object interpret(String program, String sourceDesc) throws Throwable {
         Tokenizer tokenizer = new Tokenizer(program, sourceDesc);
         Parser parser = new Parser(tokenizer);
-        Evaluator evaluator = new Evaluator(new Environment(env), lazyFuncNames);
+        Environment interpreterEnv = new Environment(this.env);
+        Evaluator evaluator = new Evaluator(interpreterEnv, lazyFuncNames);
 
         Object result = null;
         List<Ast> asts = parser.parse();
@@ -359,4 +369,7 @@ public class Interpreter {
         Object r = interpret(code, fileName);
         return r;
     }
+
+//    public static void main(String[] args) {
+//    }
 }

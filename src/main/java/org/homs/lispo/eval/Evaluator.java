@@ -25,9 +25,10 @@ public class Evaluator {
         this.lazyFuncNames = lazyFuncNames;
     }
 
-    public Evaluator(Evaluator ev) {
+    public Evaluator(Evaluator ev/*, Ast thisReference*/) {
         super();
         this.env = new Environment(ev.env);
+//        this.env.def("~this", thisReference);
         this.lazyFuncNames = ev.lazyFuncNames;
     }
 
