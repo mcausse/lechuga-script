@@ -82,7 +82,7 @@ public class TokenizerTest {
             "'\"hoho\"',        '[STRING:hoho]'",
             "'\"ho\nho\"',      '[STRING:ho\nho]'",
             "'\"ho\\\"ho\"',    '[STRING:ho\"ho]'",
-            "'\"\"\"jou\"juas\"\"\"',  '[STRING:jou\"juas]'",
+            "'\"\"\"jou\"juas\"\"\"',  '[INTERPOLATION_STRING:jou\"juas]'",
             ";comment',         '[]'",
     })
     void tokenize_a_program_properly(String program, String expectedStringifiedTokens) {

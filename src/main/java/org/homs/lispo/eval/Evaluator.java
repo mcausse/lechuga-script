@@ -35,7 +35,9 @@ public class Evaluator {
     public Object evalAst(Ast ast) throws Throwable {
 
         try {
-            if (ast instanceof StringAst) {
+            if (ast instanceof InterpolationStringAst) {
+                return evaluateStringInterpolation((InterpolationStringAst)ast);
+            } else if (ast instanceof StringAst) {
                 return ((StringAst) ast).value;
             } else if (ast instanceof NumberAst) {
                 return ((NumberAst) ast).value;
@@ -45,10 +47,7 @@ public class Evaluator {
                 return ((BooleanAst) ast).value;
             } else if (ast instanceof SymbolAst) {
                 String sym = ((SymbolAst) ast).value;
-
-                // TODO return env.get(sym);
-                return evaluateSymbolInDotNotation(env, sym);
-
+                return env.get(sym);
             } else if (ast instanceof ListAst) {
                 List<Ast> listAstValues = ((ListAst) ast).values;
                 return evalListAst(listAstValues);
@@ -165,13 +164,14 @@ public class Evaluator {
         }
     }
 
-    protected Object evaluateSymbolInDotNotation(Environment env, String sym) {
-        String[] parts = sym.split("\\.");
-        Object target = env.get(parts[0]);
-        for (int i = 1; i < parts.length; i++) {
-            target = ReflectUtils.get(target, parts[i]);
+    protected String evaluateStringInterpolation(InterpolationStringAst ast) throws Throwable {
+
+        StringBuilder s=new StringBuilder();
+        for(Ast astPart:ast.templateParts) {
+            Object r = evalAst(astPart);
+            s.append(String.valueOf(r));
         }
-        return target;
+        return s.toString();
     }
 
     protected boolean isLazyFunc(Ast operator) {
@@ -180,17 +180,27 @@ public class Evaluator {
 
     protected List<Object> evalListAst(List<Ast> listAstValues) throws Throwable {
         List<Object> r = new ArrayList<>();
+
+        // "this" feature
+        Evaluator ev = new Evaluator(this);
+        ev.getEnvironment().def("this", r);
+
         for (Ast a : listAstValues) {
-            r.add(evalAst(a));
+            r.add(ev.evalAst(a));
         }
         return r;
     }
 
     protected Map<Object, Object> evalMapAst(Map<Ast, Ast> mapAstValues) throws Throwable {
         Map<Object, Object> r = new LinkedHashMap<>();
+
+        // "this" feature
+        Evaluator ev = new Evaluator(this);
+        ev.getEnvironment().def("this", r);
+
         for (Entry<Ast, Ast> a : mapAstValues.entrySet()) {
-            Object k = evalAst(a.getKey());
-            Object v = evalAst(a.getValue());
+            Object k = ev.evalAst(a.getKey());
+            Object v = ev.evalAst(a.getValue());
             r.put(k, v);
         }
         return r;

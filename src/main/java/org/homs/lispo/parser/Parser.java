@@ -3,8 +3,11 @@ package org.homs.lispo.parser;
 import org.homs.lispo.parser.ast.*;
 import org.homs.lispo.tokenizer.EToken;
 import org.homs.lispo.tokenizer.Token;
+import org.homs.lispo.tokenizer.Tokenizer;
 
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class Parser {
 
@@ -36,6 +39,8 @@ public class Parser {
                     return new NumberAst(t, Double.valueOf(t.value));
                     // TODO return new NumberAst(t, new BigDecimal(t.value));
                 }
+            case INTERPOLATION_STRING:
+                return parseInterpolationStringAst(t);
             case STRING:
                 return new StringAst(t, t.value);
             case NULL:
@@ -53,6 +58,32 @@ public class Parser {
             default:
                 throw new RuntimeException("unexpected token: '" + t + "', at: " + t.tokenAt);
         }
+    }
+
+    final protected Pattern stringInterpolationExpression = Pattern.compile("\\$\\{(.*?)\\}\\$");
+
+    protected InterpolationStringAst parseInterpolationStringAst(Token t) {
+        String string = t.value;
+        List<Ast> templateParts = new ArrayList<>();
+
+        Matcher m = stringInterpolationExpression.matcher(string);
+        int pos = 0;
+        while (m.find()) {
+            String prev = string.substring(pos, m.start());
+            templateParts.add(new StringAst(t, prev));
+
+            String expression = m.group(1);
+
+            Tokenizer tokenizer = new Tokenizer(expression, t.tokenAt.toString());
+            Parser parser = new Parser(tokenizer);
+            templateParts.addAll(parser.parse());
+
+            pos = m.end();
+        }
+        String last = string.substring(pos);
+        templateParts.add(new StringAst(t, last));
+
+        return new InterpolationStringAst(t, string, templateParts);
     }
 
     // {[:one 1] [:two 2]}

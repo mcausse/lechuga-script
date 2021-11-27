@@ -1,6 +1,7 @@
 package org.homs.lispo;
 
 import org.homs.lispo.parser.ast.*;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -12,6 +13,7 @@ import java.util.Objects;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
 
 public class InterpreterTest {
 
@@ -138,11 +140,6 @@ public class InterpreterTest {
                 Arguments.of("(def chucho (new :org.homs.lispo.InterpreterTest$Dog [])) (chucho :setId [42]) (chucho :getId [])", 42),
                 Arguments.of("(def chucho (new :org.homs.lispo.InterpreterTest$Dog [])) (chucho :setName [:chuchales]) (chucho :getName [])", "chuchales"),
 
-                Arguments.of("(def chucho (new :org.homs.lispo.InterpreterTest$Dog [])) (chucho :setId [42]) chucho.getId", 42),
-                Arguments.of("(def chucho (new :org.homs.lispo.InterpreterTest$Dog [])) (chucho :setId [42]) chucho.id", 42),
-                Arguments.of("(def chucho (new :org.homs.lispo.InterpreterTest$Dog [])) (chucho :setName [:chuchales]) chucho.getName", "chuchales"),
-                Arguments.of("(def chucho (new :org.homs.lispo.InterpreterTest$Dog [])) (chucho :setName [:chuchales]) chucho.name", "chuchales"),
-
                 Arguments.of("(and false false false)", false),
                 Arguments.of("(and true false false)", false),
                 Arguments.of("(and true true false)", false),
@@ -225,9 +222,9 @@ public class InterpreterTest {
 
         assertThat(result).isEqualTo(expectedResult);
 
-        System.out.println();
-        System.out.println(expression);
-        System.out.println("=> " + result);
+//        System.out.println();
+//        System.out.println(expression);
+//        System.out.println("=> " + result);
     }
 
     static Stream<Arguments> scriptsProvider() {
@@ -235,6 +232,7 @@ public class InterpreterTest {
                 Arguments.of("std.lsp", true)
         );
     }
+
 
     @ParameterizedTest
     @MethodSource("scriptsProvider")
@@ -244,16 +242,23 @@ public class InterpreterTest {
         Object result = i.evalClassPathFile(scriptName);
 
         assertThat(result).isEqualTo(expectedResult);
-
-//        var k = 1;
-//        for (var v : i.env.getVariables().keySet()) {
-//            var s = String.format("%-15s", v);
-//            if (k % 5 == 0) {
-//                System.out.println(s);
-//            } else {
-//                System.out.print(s);
-//            }
-//            k++;
-//        }
     }
+
+    @Test
+    void error_functionDefinitionWithAnInvalidArgumentAst() {
+
+        Interpreter i = new Interpreter();
+
+        try {
+            i.interpret("(fn [1] 1)", "test");
+            fail("an exception should be thrown");
+        } catch (Throwable t) {
+
+            assertThat(t.getMessage()).isEqualTo("error evaluating: (fn [1] 1); at test:1,1");
+            assertThat(t.getCause()).isNotNull();
+            assertThat(t.getCause().getMessage()).isEqualTo("required a SymbolAst as an argument of a function definition at test:1,6");
+        }
+
+    }
+
 }

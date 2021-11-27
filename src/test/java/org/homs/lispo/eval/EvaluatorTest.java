@@ -45,7 +45,7 @@ public class EvaluatorTest {
                 Arguments.of(new BooleanAst(null, false), false),
 
                 Arguments.of(new SymbolAst(null, "pi"), 3.14159),
-                Arguments.of(new SymbolAst(null, "pi.class.name"), "java.lang.Double"),
+//                Arguments.of(new SymbolAst(null, "pi.class.name"), "java.lang.Double"),
 
 
                 Arguments.of(new ListAst(null, Arrays.asList(

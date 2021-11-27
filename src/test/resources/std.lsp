@@ -101,7 +101,7 @@
     (assert/fail "an exception should be thrown.")
     :org.homs.lispo.util.AssertionError
     (fn [e at]
-        (assert/eq "an exception should be thrown." e.getMessage)))
+        (assert/eq "an exception should be thrown." (e :getMessage))))
 
 
 
@@ -663,7 +663,7 @@
 
     (def composition
         (composite
-            (c/remove-if (fn [dog] (eq? dog.name :din)))
+            (c/remove-if (fn [dog] (eq? (dog :getName) :din)))
             (c/mapcar (fn [dog] (dog :getName)))
             (c/reduce (fn [a e] (concat a "-" e)))))
 
@@ -719,5 +719,20 @@
 
 )
 
+;;;
+;;; String interpolation
+;;;
+(multi
+    (def script-name "Merluzo Script")
+    (assert/eq
+        "hello Merluzo Script!"
+        """hello ${script-name}$!"""
+    )
+
+    (assert/eq
+        "hello 5!"
+        """hello ${(+ 2 3)}$!"""
+    )
+)
 
 true

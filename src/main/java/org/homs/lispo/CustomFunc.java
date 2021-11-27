@@ -26,7 +26,7 @@ public class CustomFunc implements Func {
         this.argNames = new ArrayList<>();
         for (Ast argDef : argDefs.values) {
             if (!(argDef instanceof SymbolAst)) {
-                throw new RuntimeException(); // TODO
+                throw new RuntimeException("required a " + SymbolAst.class.getSimpleName() + " as an argument of a function definition " + argDef.getTokenAt());
             }
             this.argNames.add(((SymbolAst) argDef).value);
         }

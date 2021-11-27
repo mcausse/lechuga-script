@@ -53,7 +53,7 @@ public class Tokenizer implements Iterator<Token> {
                     }
                     String value = s.toString();
                     p = k + 3; // chupa """
-                    r = new Token(EToken.STRING, value, sourceDesc, row, col);
+                    r = new Token(EToken.INTERPOLATION_STRING, value, sourceDesc, row, col);
                 } else {
                     p++; // chupa "
                     StringBuilder s = new StringBuilder();
