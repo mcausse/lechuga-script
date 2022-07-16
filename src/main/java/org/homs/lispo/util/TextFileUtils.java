@@ -13,6 +13,10 @@ public class TextFileUtils {
         return new FileInputStream(f);
     }
 
+    public static String read(File f) {
+        return read(f, UTF8);
+    }
+
     public static String read(File f, Charset charset) {
         try {
             InputStream is = fileToInputStream(f);
