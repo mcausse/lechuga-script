@@ -16,6 +16,7 @@ import org.homs.lispo.util.ReflectUtils;
 import org.homs.lispo.util.TextFileUtils;
 
 import java.io.File;
+import java.net.URL;
 import java.util.*;
 
 public class Interpreter {
@@ -51,13 +52,13 @@ public class Interpreter {
     final Func funcMulti = (tokenAt, ev, args) -> args.isEmpty() ? null : args.get(args.size() - 1);
 
     final Func funcQuote = (tokenAt, ev, args) -> {
-        FuncUtils.verifyArgumentsNumber(tokenAt, 1, args);
+        Interpreter.FuncUtils.verifyArgumentsNumber(tokenAt, 1, args);
         return args.get(0);
     };
 
     final Func funcDef = (TokenAt tokenAt, Evaluator ev, List<Object> args) -> {
-        FuncUtils.verifyArgumentsNumber(tokenAt, 2, null, args);
-        SymbolAst symbolAst = FuncUtils.validateNotNullType(tokenAt, SymbolAst.class, args.get(0));
+        Interpreter.FuncUtils.verifyArgumentsNumber(tokenAt, 2, null, args);
+        SymbolAst symbolAst = Interpreter.FuncUtils.validateNotNullType(tokenAt, SymbolAst.class, args.get(0));
 
         Object v = null;
         for (int i = 1; i < args.size(); i++) {
@@ -68,8 +69,8 @@ public class Interpreter {
         return v;
     };
     final Func funcSet = (TokenAt tokenAt, Evaluator ev, List<Object> args) -> {
-        FuncUtils.verifyArgumentsNumber(tokenAt, 2, null, args);
-        SymbolAst symbolAst = FuncUtils.validateNotNullType(tokenAt, SymbolAst.class, args.get(0));
+        Interpreter.FuncUtils.verifyArgumentsNumber(tokenAt, 2, null, args);
+        SymbolAst symbolAst = Interpreter.FuncUtils.validateNotNullType(tokenAt, SymbolAst.class, args.get(0));
 
         Object v = null;
         for (int i = 1; i < args.size(); i++) {
@@ -80,9 +81,9 @@ public class Interpreter {
         return v;
     };
     final Func funcFn = (tokenAt, ev, args) -> {
-        FuncUtils.verifyArgumentsNumber(tokenAt, 2, null, args);
+        Interpreter.FuncUtils.verifyArgumentsNumber(tokenAt, 2, null, args);
 
-        ListAst argDefs = FuncUtils.validateNotNullType(tokenAt, ListAst.class, args.get(0));
+        ListAst argDefs = Interpreter.FuncUtils.validateNotNullType(tokenAt, ListAst.class, args.get(0));
 
         List<Ast> bodies = new ArrayList<>();
         for (int i = 1; i < args.size(); i++) {
@@ -93,8 +94,8 @@ public class Interpreter {
         return new CustomFunc(ev, argDefs, bodies);
     };
     final Func funcDefn = (tokenAt, ev, args) -> {
-        SymbolAst fnNameAst = FuncUtils.validateNotNullType(tokenAt, SymbolAst.class, args.get(0));
-        ListAst argDefs = FuncUtils.validateNotNullType(tokenAt, ListAst.class, args.get(1));
+        SymbolAst fnNameAst = Interpreter.FuncUtils.validateNotNullType(tokenAt, SymbolAst.class, args.get(0));
+        ListAst argDefs = Interpreter.FuncUtils.validateNotNullType(tokenAt, ListAst.class, args.get(1));
 
         List<Ast> bodies = new ArrayList<>();
         for (int i = 2; i < args.size(); i++) {
@@ -107,7 +108,7 @@ public class Interpreter {
         return r;
     };
     final Func funcIf = (TokenAt tokenAt, Evaluator ev, List<Object> args) -> {
-        FuncUtils.verifyArgumentsNumber(tokenAt, 2, 3, args);
+        Interpreter.FuncUtils.verifyArgumentsNumber(tokenAt, 2, 3, args);
         Ast condition = (Ast) args.get(0);
         Ast thenPart = (Ast) args.get(1);
         Ast elsePart = null;
@@ -116,7 +117,7 @@ public class Interpreter {
         }
 
         Object conditionResult = ev.evalAst(condition);
-        FuncUtils.validateNotNullType(tokenAt, Boolean.class, conditionResult);
+        Interpreter.FuncUtils.validateNotNullType(tokenAt, Boolean.class, conditionResult);
         if ((Boolean) conditionResult) {
             Evaluator ev2 = new Evaluator(ev);
             return ev2.evalAst(thenPart);
@@ -130,13 +131,13 @@ public class Interpreter {
         }
     };
     final Func funcWhile = (tokenAt, ev, args) -> {
-        FuncUtils.verifyArgumentsNumber(tokenAt, 2, null, args);
+        Interpreter.FuncUtils.verifyArgumentsNumber(tokenAt, 2, null, args);
         Ast condAst = (Ast) args.get(0);
 
         Object r = null;
         while (true) {
             Object condResult = ev.evalAst(condAst);
-            Boolean cond = FuncUtils.validateNotNullType(tokenAt, Boolean.class, condResult);
+            Boolean cond = Interpreter.FuncUtils.validateNotNullType(tokenAt, Boolean.class, condResult);
             if (!cond) {
                 break;
             }
@@ -151,12 +152,12 @@ public class Interpreter {
     };
 
     final Func funcForEach = (tokenAt, ev, args) -> {
-        FuncUtils.verifyArgumentsNumber(tokenAt, 2, null, args);
+        Interpreter.FuncUtils.verifyArgumentsNumber(tokenAt, 2, null, args);
 
         Object evaluatedFunc = ev.evalAst((Ast) args.get(0));
-        Func func = FuncUtils.validateNotNullType(tokenAt, Func.class, evaluatedFunc);
+        Func func = Interpreter.FuncUtils.validateNotNullType(tokenAt, Func.class, evaluatedFunc);
 
-        Iterable<Object> it = FuncUtils.validateNotNullType(tokenAt, Iterable.class, ev.evalAst((Ast) args.get(1)));
+        Iterable<Object> it = Interpreter.FuncUtils.validateNotNullType(tokenAt, Iterable.class, ev.evalAst((Ast) args.get(1)));
 
         Object r = null;
         int index = 0;
@@ -169,35 +170,35 @@ public class Interpreter {
     };
 
     final Func funcNew = (tokenAt, ev, args) -> {
-        FuncUtils.verifyArgumentsNumber(tokenAt, 2, args);
-        String className = FuncUtils.validateNotNullType(tokenAt, String.class, args.get(0));
-        List<?> argList = FuncUtils.validateNotNullType(tokenAt, List.class, args.get(1));
+        Interpreter.FuncUtils.verifyArgumentsNumber(tokenAt, 2, args);
+        String className = Interpreter.FuncUtils.validateNotNullType(tokenAt, String.class, args.get(0));
+        List<?> argList = Interpreter.FuncUtils.validateNotNullType(tokenAt, List.class, args.get(1));
 
         return ReflectUtils.newInstance(className, argList.toArray());
     };
 
     final Func funcCallStatic = (tokenAt, ev, args) -> {
-        FuncUtils.verifyArgumentsNumber(tokenAt, 3, args);
-        String className = FuncUtils.validateNotNullType(tokenAt, String.class, args.get(0));
-        String methodName = FuncUtils.validateNotNullType(tokenAt, String.class, args.get(1));
-        List<?> argList = FuncUtils.validateNotNullType(tokenAt, List.class, args.get(2));
+        Interpreter.FuncUtils.verifyArgumentsNumber(tokenAt, 3, args);
+        String className = Interpreter.FuncUtils.validateNotNullType(tokenAt, String.class, args.get(0));
+        String methodName = Interpreter.FuncUtils.validateNotNullType(tokenAt, String.class, args.get(1));
+        List<?> argList = Interpreter.FuncUtils.validateNotNullType(tokenAt, List.class, args.get(2));
 
         return ReflectUtils.callStaticMethod(className, methodName, argList.toArray());
     };
 
     final Func funcFieldStatic = (tokenAt, ev, args) -> {
-        FuncUtils.verifyArgumentsNumber(tokenAt, 2, args);
-        String className = FuncUtils.validateNotNullType(tokenAt, String.class, args.get(0));
-        String fieldName = FuncUtils.validateNotNullType(tokenAt, String.class, args.get(1));
+        Interpreter.FuncUtils.verifyArgumentsNumber(tokenAt, 2, args);
+        String className = Interpreter.FuncUtils.validateNotNullType(tokenAt, String.class, args.get(0));
+        String fieldName = Interpreter.FuncUtils.validateNotNullType(tokenAt, String.class, args.get(1));
 
         return ReflectUtils.getStaticField(className, fieldName);
     };
 
     final Func funcAnd = (tokenAt, ev, args) -> {
-        FuncUtils.verifyArgumentsNumber(tokenAt, 1, null, args);
+        Interpreter.FuncUtils.verifyArgumentsNumber(tokenAt, 1, null, args);
         for (Object arg : args) {
             Ast valueAst = (Ast) arg;
-            Boolean value = FuncUtils.validateNotNullType(tokenAt, Boolean.class, ev.evalAst(valueAst));
+            Boolean value = Interpreter.FuncUtils.validateNotNullType(tokenAt, Boolean.class, ev.evalAst(valueAst));
             if (!value) {
                 return false;
             }
@@ -205,10 +206,10 @@ public class Interpreter {
         return true;
     };
     final Func funcOr = (tokenAt, ev, args) -> {
-        FuncUtils.verifyArgumentsNumber(tokenAt, 1, null, args);
+        Interpreter.FuncUtils.verifyArgumentsNumber(tokenAt, 1, null, args);
         for (Object arg : args) {
             Ast valueAst = (Ast) arg;
-            Boolean value = FuncUtils.validateNotNullType(tokenAt, Boolean.class, ev.evalAst(valueAst));
+            Boolean value = Interpreter.FuncUtils.validateNotNullType(tokenAt, Boolean.class, ev.evalAst(valueAst));
             if (value) {
                 return true;
             }
@@ -225,8 +226,8 @@ public class Interpreter {
                  (* x y z)))
     */
     final Func funcCurry = (tokenAt, ev, args) -> {
-        FuncUtils.verifyArgumentsNumber(tokenAt, 1, args);
-        CustomFunc f = FuncUtils.validateNotNullType(tokenAt, CustomFunc.class, args.get(0));
+        Interpreter.FuncUtils.verifyArgumentsNumber(tokenAt, 1, args);
+        CustomFunc f = Interpreter.FuncUtils.validateNotNullType(tokenAt, CustomFunc.class, args.get(0));
 
         final List<Ast> argDefsHead;
         final List<Ast> argDefsTail;
@@ -247,13 +248,13 @@ public class Interpreter {
     };
 
     final Func funcThrow = (tokenAt, ev, args) -> {
-        FuncUtils.verifyArgumentsNumber(tokenAt, 1, args);
+        Interpreter.FuncUtils.verifyArgumentsNumber(tokenAt, 1, args);
         Throwable ex = (Throwable) args.get(0);
         throw ex;
     };
 
     final Func funcTryCatch = (tokenAt, ev, args) -> {
-        FuncUtils.verifyArgumentsNumber(tokenAt, 3, args);
+        Interpreter.FuncUtils.verifyArgumentsNumber(tokenAt, 3, args);
         Ast bodyAst = (Ast) args.get(0);
         Ast exceptionClassNameAst = (Ast) args.get(1);
         Ast catchAst = (Ast) args.get(2);
@@ -261,7 +262,7 @@ public class Interpreter {
         try {
             return ev.evalAst(bodyAst);
         } catch (Throwable e) {
-            String exceptionClassName = FuncUtils.validateNotNullType(exceptionClassNameAst.getTokenAt(), String.class, ev.evalAst(exceptionClassNameAst));
+            String exceptionClassName = Interpreter.FuncUtils.validateNotNullType(exceptionClassNameAst.getTokenAt(), String.class, ev.evalAst(exceptionClassNameAst));
             Class<?> exceptionClass;
             try {
                 exceptionClass = Class.forName(exceptionClassName);
@@ -278,7 +279,7 @@ public class Interpreter {
     };
 
     final Func funcIsNull = (tokenAt, ev, args) -> {
-        FuncUtils.verifyArgumentsNumber(tokenAt, 1, args);
+        Interpreter.FuncUtils.verifyArgumentsNumber(tokenAt, 1, args);
         Object o = args.get(0);
         return o == null;
     };
@@ -344,10 +345,28 @@ public class Interpreter {
         }
     }
 
-    public Object interpret(String program, String sourceDesc) throws Throwable {
+    public void initStd() throws Throwable {
+        String resource = getClass().getClassLoader().getResource("std.lsp").getFile();
+        File f = new File(resource);
+        String code = TextFileUtils.read(f, TextFileUtils.UTF8);
+
+        run(code, "std.lsp", false);
+    }
+
+    public Object run(String program, String sourceDesc) throws Throwable {
+        return run(program, sourceDesc, true);
+    }
+
+    public Object run(String program, String sourceDesc, boolean isolated) throws Throwable {
         Tokenizer tokenizer = new Tokenizer(program, sourceDesc);
         Parser parser = new Parser(tokenizer);
-        Environment interpreterEnv = new Environment(this.env);
+
+        final Environment interpreterEnv;
+        if (isolated) {
+            interpreterEnv = new Environment(this.env);
+        } else {
+            interpreterEnv = this.env;
+        }
         Evaluator evaluator = new Evaluator(interpreterEnv, lazyFuncNames);
 
         Object result = null;
@@ -358,18 +377,19 @@ public class Interpreter {
         return result;
     }
 
-    public Object evalClassPathFile(String fileName) throws Throwable {
-        String f = getClass().getClassLoader().getResource(fileName).getFile();
-        return evalFile(f);
+    public Object runClassPathFile(String fileName) throws Throwable {
+        URL resource = getClass().getClassLoader().getResource(fileName);
+        if (resource == null) {
+            throw new RuntimeException("file not found: " + fileName);
+        }
+        String f = resource.getFile();
+        return runFile(f);
     }
 
-    public Object evalFile(String fileName) throws Throwable {
+    public Object runFile(String fileName) throws Throwable {
         File f = new File(fileName);
         String code = TextFileUtils.read(f, TextFileUtils.UTF8);
-        Object r = interpret(code, fileName);
+        var r = run(code, fileName);
         return r;
     }
-
-//    public static void main(String[] args) {
-//    }
 }

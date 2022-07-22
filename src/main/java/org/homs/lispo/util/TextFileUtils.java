@@ -2,11 +2,12 @@ package org.homs.lispo.util;
 
 import java.io.*;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 
 public class TextFileUtils {
 
-    public static final Charset ISO88591 = Charset.forName("ISO-8859-1");
-    public static final Charset UTF8 = Charset.forName("UTF8");
+    public static final Charset ISO88591 = StandardCharsets.ISO_8859_1;
+    public static final Charset UTF8 = StandardCharsets.UTF_8;
     public static final Charset Cp1252 = Charset.forName("Cp1252");
 
     public static InputStream fileToInputStream(File f) throws FileNotFoundException {

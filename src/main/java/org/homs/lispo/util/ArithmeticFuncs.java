@@ -7,7 +7,7 @@ import java.util.List;
 
 public class ArithmeticFuncs {
 
-    private static List<Class<? extends Number>> numericTypes = Arrays.asList(Byte.class, Short.class, Integer.class,
+    private static final List<Class<? extends Number>> numericTypes = Arrays.asList(Byte.class, Short.class, Integer.class,
             Long.class, Float.class, Double.class);
 
     protected static int findMaxType(List<?> args) {

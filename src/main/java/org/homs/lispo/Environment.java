@@ -56,7 +56,7 @@ public class Environment {
         if (parent == null) {
             return variables.toString();
         } else {
-            return variables.toString() + " => " + parent.toString();
+            return variables.toString() + " => " + parent;
         }
     }
 

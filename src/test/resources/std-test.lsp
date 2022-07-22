@@ -1,22 +1,6 @@
-"""
-    std.lsp - the standard library
-    written by mhoms @ 2021
 
-    multi          def            set            fn             defn
-    and            or             if             while          for-each
-    new            call-static    field-static   curry          throw
-    try-catch      is-null?       +              -              *
-    /              %              to-byte        to-short       to-int
-    to-long        to-float       to-double
-"""
 
-(defn println [...xs]
-    (defn print-one-arg [x]
-        ((field-static :java.lang.System :out) :print [x])
-        x)
-    (def r (for-each print-one-arg xs))
-    ((field-static :java.lang.System :out) :println)
-    r)
+
 
 (println "Aló world!"
          "this is a first contact with"
@@ -27,38 +11,12 @@
          this beautiful scripting language""")
 
 
-(defn not [a]
-    (if a
-        false
-        true))
-
-(defn eq? [a b]
-    (if (is-null? a)
-        (is-null? b)
-        (a :equals [b])))
-
-(defn to-string [x]
-    (if (is-null? x)
-        "null"
-        (x :toString)))
-
-(defn concat [...xs]
-    (defn concat-two-args [a b]
-        (a :concat [(to-string b)]))
-    (def r "")
-    (for-each
-        (fn [x]
-            (set r
-                (concat-two-args r x)))
-        xs)
-    r)
-
 (defn assert/fail [msg]
     (throw (new :org.homs.lispo.util.AssertionError [msg]))
 )
 
 (defn assert/eq [expected obtained]
-    (if (not (eq? expected obtained))
+    (if (not (equals? expected obtained))
         (multi
             (def message
                 (concat
@@ -70,7 +28,7 @@
             (throw (new :org.homs.lispo.util.AssertionError [message])))))
 
 (defn assert/ne [expected obtained]
-    (if (eq? expected obtained)
+    (if (equals? expected obtained)
         (multi
             (def message
                 (concat
@@ -108,10 +66,10 @@
 (assert/eq true (not false))
 (assert/eq false (not true))
 
-(assert/eq true  (eq? null null))
-(assert/eq false (eq? 1 null))
-(assert/eq false (eq? null 1))
-(assert/eq true  (eq? 1 1))
+(assert/eq true  (equals? null null))
+(assert/eq false (equals? 1 null))
+(assert/eq false (equals? null 1))
+(assert/eq true  (equals? 1 1))
 
 (assert/eq "null"       (to-string null))
 (assert/eq "true"       (to-string true))
@@ -132,16 +90,6 @@
 
 
 
-
-
-(defn mapcar [f l]
-    (def r [])
-    (for-each
-        (fn [e]
-            (r :add [(f e)]))
-        l)
-    r)
-
 (assert/eq ["<a>" "<b>" "<c>"] (mapcar (fn[x](concat "<" x ">")) [:a :b :c]))
 (assert/eq [false true false] (mapcar is-null? [:a null :c]))
 (assert/eq [false true false] (mapcar not [true false true]))
@@ -149,24 +97,8 @@
 
 
 
-(defn list/empty? [l]
-    (l :isEmpty))
-
-(assert/eq true (list/empty? []))
-(assert/eq false (list/empty? [1]))
-
-(defn list/size [l]
-    (l :size))
-
-(assert/eq 0 (list/size []))
-(assert/eq 3 (list/size [1 2 3]))
 
 
-(defn list/head [l]
-    (if (list/empty? l)
-        (throw (new :org.homs.lispo.util.ValidationError [
-            "list/head: the list is empty"]))
-        (l :get [0])))
 
 (assert/eq 1 (list/head [1 2 3]))
 (assert/eq 2 (list/head [2 3]))
@@ -183,11 +115,6 @@
     )
 )
 
-(defn list/tail [l]
-    (if (list/empty? l)
-        (throw (new :org.homs.lispo.util.ValidationError [
-                    "list/tail: the list is empty"]))
-        (l :subList [1 (list/size l)])))
 
 (assert/eq [2 3] (list/tail [1 2 3]))
 (assert/eq [3] (list/tail [2 3]))
@@ -204,24 +131,12 @@
 (assert/eq 3 (list/head (list/tail (list/tail [1 2 3]))))
 (assert/eq [] (list/tail (list/tail (list/tail [1 2 3]))))
 
-(defn reduce [f l]
-    (if (list/empty? l)
-        null
-        (multi
-            (def acc (list/head l))
-            (def ll (list/tail l))
-            (while (not (list/empty? ll))
-                (set acc (f acc (list/head ll)))
-                (set ll (list/tail ll)))
-            acc)))
+
 
 (assert/eq null (reduce (fn [a e] (concat a "-" e)) []))
 (assert/eq "a-b-c" (reduce (fn [a e] (concat a "-" e)) [:a :b :c]))
 
-(defn str/join [sep ss]
-    (if (list/empty? ss)
-        ""
-        (reduce (fn [a e] (concat a sep e)) ss)))
+
 
 (assert/eq "" (str/join "-" []))
 (assert/eq "a-b-c" (str/join "-" [:a :b :c]))
@@ -257,13 +172,6 @@
 
 
 
-(defn composite [...fs]
-    (fn [value]
-        (def r value)
-        (for-each
-            (fn [f] (set r (f r)))
-            fs)
-        r))
 
 ;;
 ;; COMPOSITE
@@ -353,15 +261,6 @@
 
 
 
-;;
-;; RECURSIVE REVERSE
-;;
-(defn list/append [l a]
-    (def r [])
-    (r :addAll [l])
-    (r :add [a])
-    r)
-
 (multi
     (def l1 [])
     (def l2 (list/append l1 "a"))
@@ -370,20 +269,9 @@
 )
 
 
-(defn list/reverse [l]
-    (if (list/empty? l)
-        []
-        (list/append (list/reverse (list/tail l)) (list/head l))))
-
 (assert/eq [] (list/reverse []))
 (assert/eq [3 2 1] (list/reverse [1 2 3]))
 
-
-(defn list/cons [e l]
-    (def r [])
-    (r :add [e])
-    (r :addAll [l])
-    r)
 
 (multi
     (assert/eq [[]] (list/cons [] []))
@@ -463,37 +351,10 @@
 
 
 
-
-(defn math/fact [x]
-    (set x (to-int x))
-	(if (eq? x 1)
-		1
-		(* x (math/fact (- x 1)))))
-
 (assert/eq 120 (math/fact 5))
 (assert/eq 120 (math/fact 5.1))
 (assert/eq 3628800 (math/fact 10))
 
-
-
-
-(defn < [a b]
-	(call-static :org.homs.lispo.util.ComparableUtils :lt [a b]))
-
-(defn <= [a b]
-	(call-static :org.homs.lispo.util.ComparableUtils :le [a b]))
-
-(defn > [a b]
-	(call-static :org.homs.lispo.util.ComparableUtils :gt [a b]))
-
-(defn >= [a b]
-	(call-static :org.homs.lispo.util.ComparableUtils :ge [a b]))
-
-(defn = [a b]
-	(call-static :org.homs.lispo.util.ComparableUtils :eq [a b]))
-
-(defn <> [a b]
-	(call-static :org.homs.lispo.util.ComparableUtils :ne [a b]))
 
 
 (assert/eq true (< 2 3))
@@ -507,32 +368,15 @@
 (assert/eq 0 (% 2 2))
 (assert/eq 1 (% 3 2))
 
-
-(defn dec [x]  (- x 1))
-(defn inc [x]  (+ x 1))
-
 (assert/eq 3 (dec 4))
 (assert/eq 5 (inc 4))
 
 
 
-
-(defn math/abs [x] (call-static :java.lang.Math :abs [x]))
-
 (assert/eq 5 (math/abs -5))
 (assert/eq 5 (math/abs 5))
 
 
-
-(defn seq [min max step?]
-    (if (is-null? step)
-        (set step 1))
-    (def r [])
-    (def n min)
-    (while (< n max)
-        (r :add [n])
-        (set n (+ n step)))
-    r)
 
 (multi
     (assert/eq [] (seq 2 0))
@@ -547,29 +391,6 @@
 )
 
 
-
-;;; XXX posar location, home
-;;;
-;;; (assert/fail "aaaa")
-
-
-(defn remove-if [f l]
-    (def r [])
-    (for-each
-        (fn [e]
-            (if (not (f e))
-                (r :add [e])))
-        l)
-    r)
-
-(defn remove-if-not [f l]
-    (def r [])
-    (for-each
-        (fn [e]
-            (if (f e)
-                (r :add [e])))
-        l)
-    r)
 
 
 (multi
@@ -587,28 +408,12 @@
 )
 
 
-(defn primos [n]
-    (def r (seq 2 n))
-    (for-each
-        (fn [x]
-            (set r
-                (remove-if
-                    (fn [xx]
-                        (and (> xx x) (= 0 (% xx x))))
-                    r)))
-        (seq 2 n))
-    r)
 
 (assert/eq [2 3 5 7] (primos 10))
 (assert/eq
     [2 3 5 7 11 13 17 19 23 29 31 37 41 43 47 53 59 61 67 71 73 79 83 89 97]
     (primos 100))
 
-
-(def c/mapcar          (curry mapcar))
-(def c/reduce          (curry reduce))
-(def c/remove-if       (curry remove-if))
-(def c/remove-if-not   (curry remove-if-not))
 
 ;;;
 ;;;
@@ -635,12 +440,6 @@
 )
 
 
-(defn math/sum [...xs]
-    (reduce + xs))
-
-(defn math/mul [...xs]
-    (reduce * xs))
-
 (assert/eq 6 (math/sum 1 2 3))
 (assert/eq 6 (math/mul 1 2 3))
 
@@ -663,7 +462,7 @@
 
     (def composition
         (composite
-            (c/remove-if (fn [dog] (eq? (dog :getName) :din)))
+            (c/remove-if (fn [dog] (equals? (dog :getName) :din)))
             (c/mapcar (fn [dog] (dog :getName)))
             (c/reduce (fn [a e] (concat a "-" e)))))
 
@@ -734,5 +533,43 @@
         """hello ${(+ 2 3)}$!"""
     )
 )
+
+
+
+(multi
+
+    (defn is-even? [x]
+        (= (% x 2) 0))
+
+    (assert/eq
+        true
+        (any? is-even? [1 2 3 4 5]))
+    (assert/eq
+        true
+        (any? is-even? [1 3 3 4 5]))
+    (assert/eq
+        false
+        (any? is-even? [1 3 3 7 5]))
+    (assert/eq
+        false
+        (any? is-even? []))
+
+
+    (assert/eq
+        false
+        (every? is-even? [1 2 3 4 5]))
+    (assert/eq
+        false
+        (every? is-even? [1 3 3 4 5]))
+    (assert/eq
+        true
+        (every? is-even? [2 4 6 8 10]))
+    (assert/eq
+        true
+        (every? is-even? []))
+)
+
+
+
 
 true

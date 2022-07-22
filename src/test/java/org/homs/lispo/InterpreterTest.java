@@ -218,7 +218,7 @@ public class InterpreterTest {
     void testInterpret(String expression, Object expectedResult) throws Throwable {
         Interpreter i = new Interpreter();
 
-        Object result = i.interpret(expression, "test");
+        Object result = i.run(expression, "test");
 
         assertThat(result).isEqualTo(expectedResult);
 
@@ -229,7 +229,7 @@ public class InterpreterTest {
 
     static Stream<Arguments> scriptsProvider() {
         return Stream.of(
-                Arguments.of("std.lsp", true)
+                Arguments.of("std-test.lsp", true)
         );
     }
 
@@ -238,8 +238,9 @@ public class InterpreterTest {
     @MethodSource("scriptsProvider")
     void testRunScript(String scriptName, Object expectedResult) throws Throwable {
         Interpreter i = new Interpreter();
+        i.initStd();
 
-        Object result = i.evalClassPathFile(scriptName);
+        Object result = i.runClassPathFile(scriptName);
 
         assertThat(result).isEqualTo(expectedResult);
     }
@@ -250,7 +251,7 @@ public class InterpreterTest {
         Interpreter i = new Interpreter();
 
         try {
-            i.interpret("(fn [1] 1)", "test");
+            i.run("(fn [1] 1)", "test");
             fail("an exception should be thrown");
         } catch (Throwable t) {
 

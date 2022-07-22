@@ -36,7 +36,7 @@ public class Evaluator {
 
         try {
             if (ast instanceof InterpolationStringAst) {
-                return evaluateStringInterpolation((InterpolationStringAst)ast);
+                return evaluateStringInterpolation((InterpolationStringAst) ast);
             } else if (ast instanceof StringAst) {
                 return ((StringAst) ast).value;
             } else if (ast instanceof NumberAst) {
@@ -166,10 +166,10 @@ public class Evaluator {
 
     protected String evaluateStringInterpolation(InterpolationStringAst ast) throws Throwable {
 
-        StringBuilder s=new StringBuilder();
-        for(Ast astPart:ast.templateParts) {
+        StringBuilder s = new StringBuilder();
+        for (Ast astPart : ast.templateParts) {
             Object r = evalAst(astPart);
-            s.append(String.valueOf(r));
+            s.append(r);
         }
         return s.toString();
     }

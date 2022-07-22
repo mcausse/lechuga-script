@@ -23,7 +23,7 @@ public class InterpreterThisTest {
     void testInterpret(String expression, Object expectedResult) throws Throwable {
         Interpreter i = new Interpreter();
 
-        Object result = i.interpret(expression, "test");
+        Object result = i.run(expression, "test");
 
         assertThat(result).isEqualTo(expectedResult);
     }
