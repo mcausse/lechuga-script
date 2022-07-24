@@ -75,7 +75,6 @@ public class CustomFunc implements Func {
         /*
             evalua els bodies amb el nou context
          */
-//        Evaluator ev2 = new Evaluator(ev__);
         Object r = null;
         for (Ast body : bodies) {
             r = ev2.evalAst(body);

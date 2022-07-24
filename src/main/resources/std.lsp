@@ -263,4 +263,45 @@
 
 
 
+
+
+
+
+
+
+(defn assert/fail [msg]
+    (throw (new :org.homs.lispo.util.AssertionError [msg]))
+)
+
+(defn assert/eq [expected obtained]
+    (if (not (equals? expected obtained))
+        (multi
+            (def message
+                (concat
+                    "assert/eq: expected <"
+                    (to-string expected)
+                    ">, but obtained <"
+                    (to-string obtained)
+                    ">"))
+            (throw (new :org.homs.lispo.util.AssertionError [message])))))
+
+(defn assert/ne [expected obtained]
+    (if (equals? expected obtained)
+        (multi
+            (def message
+                (concat
+                    "assert/eq: expected <"
+                    (to-string expected)
+                    ">, but obtained <"
+                    (to-string obtained)
+                    ">"))
+            (throw (new :org.homs.lispo.util.AssertionError [message])))))
+
+
+
+
+
 true
+
+
+

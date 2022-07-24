@@ -21,6 +21,8 @@ import java.util.*;
 
 public class Interpreter {
 
+    public static final String STD_LSP = "std.lsp";
+
     static abstract class FuncUtils {
         public static void verifyArgumentsNumber(TokenAt tokenAt, int argumentsNumber, List<Object> args) {
             if (argumentsNumber != args.size()) {
@@ -345,51 +347,57 @@ public class Interpreter {
         }
     }
 
-    public void initStd() throws Throwable {
-        String resource = getClass().getClassLoader().getResource("std.lsp").getFile();
-        File f = new File(resource);
+    public Environment getEnvironment() {
+        return new Environment(this.env);
+    }
+
+    public Environment getStdEnvironment() throws Throwable {
+        final Environment stdEnviroenment = getEnvironment();
+
+        final String code;
+        {
+            URL resource = Objects.requireNonNull(getClass().getClassLoader().getResource(STD_LSP));
+            String resourceName = resource.getFile();
+            File f = new File(resourceName);
+            code = TextFileUtils.read(f, TextFileUtils.UTF8);
+        }
+
+        List<Ast> asts = parse(code, STD_LSP);
+        evaluate(asts, stdEnviroenment);
+
+        return new Environment(stdEnviroenment);
+    }
+
+    public List<Ast> parseFile(String fileName) throws Throwable {
+        File f = new File(fileName);
         String code = TextFileUtils.read(f, TextFileUtils.UTF8);
-
-        run(code, "std.lsp", false);
+        var r = parse(code, fileName);
+        return r;
     }
 
-    public Object run(String program, String sourceDesc) throws Throwable {
-        return run(program, sourceDesc, true);
-    }
-
-    public Object run(String program, String sourceDesc, boolean isolated) throws Throwable {
-        Tokenizer tokenizer = new Tokenizer(program, sourceDesc);
-        Parser parser = new Parser(tokenizer);
-
-        final Environment interpreterEnv;
-        if (isolated) {
-            interpreterEnv = new Environment(this.env);
-        } else {
-            interpreterEnv = this.env;
-        }
-        Evaluator evaluator = new Evaluator(interpreterEnv, lazyFuncNames);
-
-        Object result = null;
-        List<Ast> asts = parser.parse();
-        for (Ast ast : asts) {
-            result = evaluator.evalAst(ast);
-        }
-        return result;
-    }
-
-    public Object runClassPathFile(String fileName) throws Throwable {
+    public List<Ast> parseFileFromClaspath(String fileName) throws Throwable {
         URL resource = getClass().getClassLoader().getResource(fileName);
         if (resource == null) {
             throw new RuntimeException("file not found: " + fileName);
         }
         String f = resource.getFile();
-        return runFile(f);
+        var r = parseFile(f);
+        return r;
     }
 
-    public Object runFile(String fileName) throws Throwable {
-        File f = new File(fileName);
-        String code = TextFileUtils.read(f, TextFileUtils.UTF8);
-        var r = run(code, fileName);
-        return r;
+    public List<Ast> parse(String program, String sourceDesc) {
+        Tokenizer tokenizer = new Tokenizer(program, sourceDesc);
+        Parser parser = new Parser(tokenizer);
+        List<Ast> asts = parser.parse();
+        return asts;
+    }
+
+    public Object evaluate(List<Ast> asts, Environment environment) throws Throwable {
+        Evaluator evaluator = new Evaluator(environment, lazyFuncNames);
+        Object result = null;
+        for (Ast ast : asts) {
+            result = evaluator.evalAst(ast);
+        }
+        return result;
     }
 }

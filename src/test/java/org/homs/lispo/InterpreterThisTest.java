@@ -23,7 +23,9 @@ public class InterpreterThisTest {
     void testInterpret(String expression, Object expectedResult) throws Throwable {
         Interpreter i = new Interpreter();
 
-        Object result = i.run(expression, "test");
+        var env = i.getEnvironment();
+        var asts = i.parse(expression, "test");
+        Object result =i.evaluate(asts, env);
 
         assertThat(result).isEqualTo(expectedResult);
     }

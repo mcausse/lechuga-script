@@ -6,10 +6,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import java.util.Arrays;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -218,18 +215,17 @@ public class InterpreterTest {
     void testInterpret(String expression, Object expectedResult) throws Throwable {
         Interpreter i = new Interpreter();
 
-        Object result = i.run(expression, "test");
+        var env = i.getEnvironment();
+        var asts = i.parse(expression, "test");
+        Object result = i.evaluate(asts, env);
 
         assertThat(result).isEqualTo(expectedResult);
-
-//        System.out.println();
-//        System.out.println(expression);
-//        System.out.println("=> " + result);
     }
 
     static Stream<Arguments> scriptsProvider() {
         return Stream.of(
-                Arguments.of("std-test.lsp", true)
+                Arguments.of("std-test.lsp", true),
+                Arguments.of("examples.lsp", true)
         );
     }
 
@@ -238,9 +234,10 @@ public class InterpreterTest {
     @MethodSource("scriptsProvider")
     void testRunScript(String scriptName, Object expectedResult) throws Throwable {
         Interpreter i = new Interpreter();
-        i.initStd();
 
-        Object result = i.runClassPathFile(scriptName);
+        var env = i.getStdEnvironment();
+        var asts = i.parseFileFromClaspath(scriptName);
+        Object result = i.evaluate(asts, env);
 
         assertThat(result).isEqualTo(expectedResult);
     }
@@ -251,7 +248,10 @@ public class InterpreterTest {
         Interpreter i = new Interpreter();
 
         try {
-            i.run("(fn [1] 1)", "test");
+            var env = i.getEnvironment();
+            var asts = i.parse("(fn [1] 1)", "test");
+            Object result = i.evaluate(asts, env);
+
             fail("an exception should be thrown");
         } catch (Throwable t) {
 
@@ -259,7 +259,41 @@ public class InterpreterTest {
             assertThat(t.getCause()).isNotNull();
             assertThat(t.getCause().getMessage()).isEqualTo("required a SymbolAst as an argument of a function definition at test:1,6");
         }
-
     }
 
+    @Test
+    void getLechugaDoc() throws Throwable {
+        Interpreter i = new Interpreter();
+        var envVars = new TreeSet<>(i.getEnvironment().parent.getVariables().keySet());
+        var stdEnvVars = new TreeSet<>(i.getStdEnvironment().parent.getVariables().keySet());
+
+        System.out.println("===================================");
+        System.out.println("BUILTIN DEFINITIONS");
+        System.out.println("===================================");
+        printVars(envVars);
+        System.out.println();
+        System.out.println();
+
+        System.out.println("===================================");
+        System.out.println("STD DEFINITIONS");
+        System.out.println("===================================");
+        printVars(stdEnvVars);
+        System.out.println();
+    }
+
+    void printVars(Set<String> envVars) {
+        int i = 0;
+        for (var var : envVars) {
+            System.out.print(var);
+            if (i == 5) {
+                System.out.println();
+                i = 0;
+            } else {
+                for (int j = 0; j < 17 - var.length(); j++) {
+                    System.out.print(" ");
+                }
+                i++;
+            }
+        }
+    }
 }
