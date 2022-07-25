@@ -6,6 +6,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.stream.Stream;
 
@@ -236,7 +237,7 @@ public class InterpreterTest {
         Interpreter i = new Interpreter();
 
         var env = i.getStdEnvironment();
-        var asts = i.parseFileFromClaspath(scriptName);
+        var asts = i.parseFileFromClaspath(scriptName, StandardCharsets.UTF_8);
         Object result = i.evaluate(asts, env);
 
         assertThat(result).isEqualTo(expectedResult);

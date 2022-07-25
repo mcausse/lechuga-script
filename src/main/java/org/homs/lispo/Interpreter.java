@@ -16,7 +16,12 @@ import org.homs.lispo.util.ReflectUtils;
 import org.homs.lispo.util.TextFileUtils;
 
 import java.io.File;
+import java.io.InputStream;
 import java.net.URL;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.*;
 
 public class Interpreter {
@@ -356,10 +361,9 @@ public class Interpreter {
 
         final String code;
         {
-            URL resource = Objects.requireNonNull(getClass().getClassLoader().getResource(STD_LSP));
-            String resourceName = resource.getFile();
-            File f = new File(resourceName);
-            code = TextFileUtils.read(f, TextFileUtils.UTF8);
+            ClassLoader loader = Thread.currentThread().getContextClassLoader();
+            InputStream is = loader.getResourceAsStream(STD_LSP);
+            code = TextFileUtils.read(is, TextFileUtils.UTF8);
         }
 
         List<Ast> asts = parse(code, STD_LSP);
@@ -368,20 +372,19 @@ public class Interpreter {
         return new Environment(stdEnviroenment);
     }
 
-    public List<Ast> parseFile(String fileName) throws Throwable {
+    public List<Ast> parseFile(String fileName, Charset charset) throws Throwable {
         File f = new File(fileName);
-        String code = TextFileUtils.read(f, TextFileUtils.UTF8);
+        String code = TextFileUtils.read(f, charset);
         var r = parse(code, fileName);
         return r;
     }
 
-    public List<Ast> parseFileFromClaspath(String fileName) throws Throwable {
-        URL resource = getClass().getClassLoader().getResource(fileName);
-        if (resource == null) {
-            throw new RuntimeException("file not found: " + fileName);
-        }
-        String f = resource.getFile();
-        var r = parseFile(f);
+    public List<Ast> parseFileFromClaspath(String fileName, Charset charset) throws Throwable {
+        ClassLoader loader = Thread.currentThread().getContextClassLoader();
+        InputStream is = loader.getResourceAsStream(fileName);
+        var code = TextFileUtils.read(is, charset);
+
+        var r = parse(code, fileName);
         return r;
     }
 
