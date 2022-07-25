@@ -106,8 +106,8 @@
 
 
 
-(assert/eq null (reduce (fn [a e] (concat a "-" e)) []))
-(assert/eq "a-b-c" (reduce (fn [a e] (concat a "-" e)) [:a :b :c]))
+(assert/eq :jou (reduce :jou (fn [a e] (concat a "-" e)) []))
+(assert/eq "-a-b-c" (reduce "" (fn [a e] (concat a "-" e)) [:a :b :c]))
 
 
 
@@ -398,17 +398,17 @@
     (def k
         (composite
             (c/mapcar inc)
-            (c/reduce concat)))
+            (c/reduce "" concat)))
 
-    (assert/eq null (k []))
+    (assert/eq "" (k []))
     (assert/eq "23456" (k [1 2 3 4 5]))
 
     (def k
         (composite
             (c/mapcar dec)
-            (c/reduce +)))
+            (c/reduce 0 +)))
 
-    (assert/eq null (k []))
+    (assert/eq 0 (k []))
     (assert/eq 10 (k [1 2 3 4 5]))
 )
 
@@ -437,16 +437,16 @@
         (composite
             (c/remove-if (fn [dog] (equals? (dog :getName) :din)))
             (c/mapcar (fn [dog] (dog :getName)))
-            (c/reduce (fn [a e] (concat a "-" e)))))
+            (c/reduce "" (fn [a e] (concat a "-" e)))))
 
-    (assert/eq "faria-negra-blanca-gossa" (composition dogs-list))
+    (assert/eq "-faria-negra-blanca-gossa" (composition dogs-list))
 
     (def composition
         (defn is-odd? [x] (<> 0 (% x 2)))
         (composite
             (c/remove-if is-odd?)
             (c/mapcar math/abs)
-            (c/reduce +)))
+            (c/reduce 0 +)))
 
     (assert/eq 4 (composition [-2 -1 0 1 2]))
 

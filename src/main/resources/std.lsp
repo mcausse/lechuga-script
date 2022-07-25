@@ -69,24 +69,19 @@
                     "list/tail: the list is empty"]))
         (l :subList [1 (l :size)])))
 
-(defn reduce [f l]
-    (if (l :isEmpty)
-        null
-        (multi
-            (def acc (list/head l))
-            (def ll (list/tail l))
-            (while (not (ll :isEmpty))
-                (set acc (f acc (list/head ll)))
-                (set ll (list/tail ll)))
-            acc)))
+
+(defn reduce [initial-value f l]
+    (def acc initial-value)
+    (for-each
+        (fn [x]
+            (set acc
+                (f acc x)))
+        l)
+    acc)
 
 
 (defn str/join [sep ss]
-    (if (ss :isEmpty)
-        ""
-        (reduce (fn [a e] (concat a sep e)) ss)))
-
-
+    (call-static :java.lang.String :join [sep ss]))
 
 
 
@@ -222,10 +217,10 @@
 
 
 (defn math/sum [...xs]
-    (reduce + xs))
+    (reduce 0 + xs))
 
 (defn math/mul [...xs]
-    (reduce * xs))
+    (reduce 1 * xs))
 
 
 
