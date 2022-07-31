@@ -17,11 +17,7 @@ import org.homs.lispo.util.TextFileUtils;
 
 import java.io.File;
 import java.io.InputStream;
-import java.net.URL;
 import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.*;
 
 public class Interpreter {
@@ -32,6 +28,12 @@ public class Interpreter {
         public static void verifyArgumentsNumber(TokenAt tokenAt, int argumentsNumber, List<Object> args) {
             if (argumentsNumber != args.size()) {
                 throw new RuntimeException("this function call requires " + argumentsNumber + " arguments, but is called with " + args.size() + "; at " + tokenAt);
+            }
+        }
+
+        public static void verifyMinimumArgumentsNumber(TokenAt tokenAt, int minimumArgumentsNumber, List<Object> args) {
+            if (args.size() < minimumArgumentsNumber) {
+                throw new RuntimeException("this function call requires at least " + minimumArgumentsNumber + " arguments, but is called with " + args.size() + "; at " + tokenAt);
             }
         }
 
@@ -177,19 +179,27 @@ public class Interpreter {
     };
 
     final Func funcNew = (tokenAt, ev, args) -> {
-        Interpreter.FuncUtils.verifyArgumentsNumber(tokenAt, 2, args);
+        Interpreter.FuncUtils.verifyMinimumArgumentsNumber(tokenAt, 1, args);
         String className = Interpreter.FuncUtils.validateNotNullType(tokenAt, String.class, args.get(0));
-        List<?> argList = Interpreter.FuncUtils.validateNotNullType(tokenAt, List.class, args.get(1));
 
+        var argList = new ArrayList<>();
+        for (int i = 1; i < args.size(); i++) {
+            var evaluatedArg = args.get(i);
+            argList.add(evaluatedArg);
+        }
         return ReflectUtils.newInstance(className, argList.toArray());
     };
 
     final Func funcCallStatic = (tokenAt, ev, args) -> {
-        Interpreter.FuncUtils.verifyArgumentsNumber(tokenAt, 3, args);
+        Interpreter.FuncUtils.verifyMinimumArgumentsNumber(tokenAt, 2, args);
         String className = Interpreter.FuncUtils.validateNotNullType(tokenAt, String.class, args.get(0));
         String methodName = Interpreter.FuncUtils.validateNotNullType(tokenAt, String.class, args.get(1));
-        List<?> argList = Interpreter.FuncUtils.validateNotNullType(tokenAt, List.class, args.get(2));
 
+        var argList = new ArrayList<>();
+        for (int i = 2; i < args.size(); i++) {
+            var evaluatedArg = args.get(i);
+            argList.add(evaluatedArg);
+        }
         return ReflectUtils.callStaticMethod(className, methodName, argList.toArray());
     };
 

@@ -118,8 +118,8 @@
 
 
 (try-catch
-    ;(throw (new :org.homs.lispo.util.AssertionError [:fallaste]))
-    (throw (new :java.lang.RuntimeException [:fallaste]))
+    ;(throw (new :org.homs.lispo.util.AssertionError :fallaste))
+    (throw (new :java.lang.RuntimeException :fallaste))
     :java.lang.RuntimeException
     (fn [e] (println e))
 )
@@ -159,7 +159,7 @@
     (assert/eq "<a>" ((c/str/wrap-with "<" ">") :a))
 
     (defn str/e3encoder [s]
-        (s :replace ["e" "3"])
+        (s :replace "e" "3")
     )
     (assert/eq "3ncod3r" (str/e3encoder "encoder"))
 
@@ -167,9 +167,9 @@
     (assert/eq "3ncod3r" ((c/str/e3encoder) "encoder"))
 
     (defn str/join [separator ss]
-        (def str-joiner (new :java.util.StringJoiner [separator]))
+        (def str-joiner (new :java.util.StringJoiner separator))
         (for-each
-            (fn[s] (str-joiner :add [(to-string s)]))
+            (fn[s] (str-joiner :add (to-string s)))
             ss)
         (str-joiner :toString)
     )
@@ -241,6 +241,16 @@
     (assert/eq [:a] l2)
 )
 
+
+
+
+;;
+;; RECURSIVE REVERSE
+;;
+(defn list/reverse [l]
+    (if (l :isEmpty)
+        []
+        (list/append (list/reverse (list/tail l)) (list/head l))))
 
 (assert/eq [] (list/reverse []))
 (assert/eq [3 2 1] (list/reverse [1 2 3]))
@@ -323,6 +333,11 @@
 
 
 
+(defn math/fact [x]
+    (set x (to-int x))
+	(if (equals? x 1)
+		1
+		(* x (math/fact (- x 1)))))
 
 (assert/eq 120 (math/fact 5))
 (assert/eq 120 (math/fact 5.1))
@@ -382,6 +397,18 @@
 
 
 
+(defn primos [n]
+    (def r (seq 2 n))
+    (for-each
+        (fn [x]
+            (set r
+                (remove-if
+                    (fn [xx]
+                        (and (> xx x) (= 0 (% xx x))))
+                    r)))
+        (seq 2 n))
+    r)
+
 (assert/eq [2 3 5 7] (primos 10))
 (assert/eq
     [2 3 5 7 11 13 17 19 23 29 31 37 41 43 47 53 59 61 67 71 73 79 83 89 97]
@@ -426,11 +453,11 @@
 (multi
 
     (def dogs-list [
-        (new :org.homs.lispo.InterpreterTest$Dog [100 :faria])
-        (new :org.homs.lispo.InterpreterTest$Dog [101 :din])
-        (new :org.homs.lispo.InterpreterTest$Dog [102 :negra])
-        (new :org.homs.lispo.InterpreterTest$Dog [103 :blanca])
-        (new :org.homs.lispo.InterpreterTest$Dog [104 :gossa])
+        (new :org.homs.lispo.InterpreterTest$Dog 100 :faria)
+        (new :org.homs.lispo.InterpreterTest$Dog 101 :din)
+        (new :org.homs.lispo.InterpreterTest$Dog 102 :negra)
+        (new :org.homs.lispo.InterpreterTest$Dog 103 :blanca)
+        (new :org.homs.lispo.InterpreterTest$Dog 104 :gossa)
     ])
 
     (def composition
@@ -455,9 +482,9 @@
 (multi
 
     (defn hora-to-mins [hora]
-        (def sep-index (hora :indexOf [":"]))
-        (def hores (to-int (hora :substring [0 sep-index])))
-        (def mins (to-int (hora :substring [(inc sep-index) (hora :length)])))
+        (def sep-index (hora :indexOf ":"))
+        (def hores (to-int (hora :substring 0 sep-index)))
+        (def mins (to-int (hora :substring (inc sep-index) (hora :length))))
         (+ (* hores 60) mins)
     )
 

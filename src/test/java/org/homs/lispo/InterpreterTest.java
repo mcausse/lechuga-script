@@ -131,12 +131,12 @@ public class InterpreterTest {
                 Arguments.of("(defn to-array [x] x) (to-array 1 2 3)", 1),
                 Arguments.of("(defn to-array [...x] x) (to-array 1 2 3)", Arrays.asList(1, 2, 3)),
 
-                Arguments.of("(def chucho (new :org.homs.lispo.InterpreterTest$Dog []))", new Dog()),
-                Arguments.of("(def chucho (new :org.homs.lispo.InterpreterTest$Dog [1 :chuchales]))", new Dog(1, "chuchales")),
-                Arguments.of("(def chucho (new :org.homs.lispo.InterpreterTest$Dog [1 :chuchales])) (chucho :toString [])", new Dog(1, "chuchales").toString()),
+                Arguments.of("(def chucho (new :org.homs.lispo.InterpreterTest$Dog))", new Dog()),
+                Arguments.of("(def chucho (new :org.homs.lispo.InterpreterTest$Dog 1 :chuchales))", new Dog(1, "chuchales")),
+                Arguments.of("(def chucho (new :org.homs.lispo.InterpreterTest$Dog 1 :chuchales)) (chucho :toString)", new Dog(1, "chuchales").toString()),
 
-                Arguments.of("(def chucho (new :org.homs.lispo.InterpreterTest$Dog [])) (chucho :setId [42]) (chucho :getId [])", 42),
-                Arguments.of("(def chucho (new :org.homs.lispo.InterpreterTest$Dog [])) (chucho :setName [:chuchales]) (chucho :getName [])", "chuchales"),
+                Arguments.of("(def chucho (new :org.homs.lispo.InterpreterTest$Dog)) (chucho :setId 42) (chucho :getId)", 42),
+                Arguments.of("(def chucho (new :org.homs.lispo.InterpreterTest$Dog)) (chucho :setName :chuchales) (chucho :getName)", "chuchales"),
 
                 Arguments.of("(and false false false)", false),
                 Arguments.of("(and true false false)", false),
@@ -150,9 +150,9 @@ public class InterpreterTest {
                 Arguments.of("(or true true true)", true),
 
 
-                Arguments.of("(defn to-long [x] (x :longValue [])) (to-long 3.14159)", 3L),
+                Arguments.of("(defn to-long [x] (x :longValue)) (to-long 3.14159)", 3L),
 
-                Arguments.of("(defn concat [s1 s2] (s1 :concat [s2])) (concat :jou :juas)", "joujuas"),
+                Arguments.of("(defn concat [s1 s2] (s1 :concat s2)) (concat :jou :juas)", "joujuas"),
 
                 // TODO
                 //        WARNING: An illegal reflective access operation has occurred
@@ -160,23 +160,22 @@ public class InterpreterTest {
                 //        WARNING: Please consider reporting this to the maintainers of org.homs.lispo.util.ReflectUtils
                 //        WARNING: Use --illegal-access=warn to enable warnings of further illegal reflective access operations
                 //        WARNING: All illegal access operations will be denied in a future release
-                Arguments.of("(def it ([1 2 3] :iterator [])) (while (it :hasNext []) (it :next []))", 3),
+                Arguments.of("(def it ([1 2 3] :iterator)) (while (it :hasNext) (it :next))", 3),
 
 
-                Arguments.of("(:jou :concat [:juas])", "joujuas"),
-                Arguments.of("(((:jou :getClass[]) :getSimpleName[]) :toUpperCase[])", "STRING"),
+                Arguments.of("(:jou :concat :juas)", "joujuas"),
                 Arguments.of("(((:jou :getClass) :getSimpleName) :toUpperCase)", "STRING"),
-                Arguments.of("(:jou :substring [1])", "ou"),
-                Arguments.of("(:jou :substring [1 2])", "o"),
-                Arguments.of("([1 2 3] :get [0])", 1),
-                Arguments.of("([1 2 3] :get [1])", 2),
-                Arguments.of("([1 2 3] :get [2])", 3),
+                Arguments.of("(:jou :substring 1)", "ou"),
+                Arguments.of("(:jou :substring 1 2)", "o"),
+                Arguments.of("([1 2 3] :get 0)", 1),
+                Arguments.of("([1 2 3] :get 1)", 2),
+                Arguments.of("([1 2 3] :get 2)", 3),
 
-                Arguments.of("({[1 :one][2 :two][3 :three]} :get [1])", "one"),
-                Arguments.of("({[1 :one][2 :two][3 :three]} :get [2])", "two"),
-                Arguments.of("({[1 :one][2 :two][3 :three]} :get [3])", "three"),
+                Arguments.of("({[1 :one][2 :two][3 :three]} :get 1)", "one"),
+                Arguments.of("({[1 :one][2 :two][3 :three]} :get 2)", "two"),
+                Arguments.of("({[1 :one][2 :two][3 :three]} :get 3)", "three"),
 
-                Arguments.of("(defn + [a b] (call-static :java.lang.Integer :sum [a b])) (+ 2 3)", 5),
+                Arguments.of("(defn + [a b] (call-static :java.lang.Integer :sum a b)) (+ 2 3)", 5),
 
                 Arguments.of("(for-each (fn [x i] x) [])", null),
                 Arguments.of("(for-each (fn [x i] i) [])", null),
@@ -189,12 +188,12 @@ public class InterpreterTest {
 
 
                 Arguments.of(
-                        "(defn + [a b] (call-static :java.lang.Integer :sum [a b]))" +
+                        "(defn + [a b] (call-static :java.lang.Integer :sum a b))" +
                                 "(def ++ (fn [x] (fn [y] (+ x y))))" +
                                 "((++ 2) 3)"
                         , 5),
                 Arguments.of(
-                        "(defn + [a b] (call-static :java.lang.Integer :sum [a b]))" +
+                        "(defn + [a b] (call-static :java.lang.Integer :sum a b))" +
                                 "(((curry +) 2) 3)"
                         , 5),
 

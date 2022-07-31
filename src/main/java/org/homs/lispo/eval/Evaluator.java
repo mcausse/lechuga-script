@@ -28,7 +28,6 @@ public class Evaluator {
     public Evaluator(Evaluator ev/*, Ast thisReference*/) {
         super();
         this.env = new Environment(ev.env);
-//        this.env.def("~this", thisReference);
         this.lazyFuncNames = ev.lazyFuncNames;
     }
 
@@ -72,15 +71,15 @@ public class Evaluator {
 
                     List<Ast> args = parenthesisAst.arguments;
 
-                    // TODO validate arguments
+                    // TODO validate arguments?
                     String methodName = (String) evalAst(args.get(0));
-                    final List<Object> methodArgs;
-                    if (args.size() == 1) {
-                        methodArgs = Collections.emptyList();
-                    } else {
-                        methodArgs = (List<Object>) evalAst(args.get(1));
+
+                    var evaluatedArgs = new ArrayList<>();
+                    for (int i = 1; i < args.size(); i++) {
+                        var evaluatedArg = evalAst(args.get(i));
+                        evaluatedArgs.add(evaluatedArg);
                     }
-                    return ReflectUtils.callMethod(op, methodName, methodArgs.toArray());
+                    return ReflectUtils.callMethod(op, methodName, evaluatedArgs.toArray());
 
 //					if (op instanceof Boolean) {
 //
@@ -107,7 +106,7 @@ public class Evaluator {
 //							}
 //
 //						} else {
-//							throw new RuntimeException(); // TODO
+//							throw new RuntimeException();
 //						}
 //					} else if (op instanceof String) {
 //
@@ -119,7 +118,7 @@ public class Evaluator {
 //							Integer index2 = ((Number) evalAst(args.get(1))).intValue();
 //							return ((String) op).substring(index1, index2);
 //						} else {
-//							throw new RuntimeException(); // TODO
+//							throw new RuntimeException();
 //						}
 //					} else
 //                    if (op instanceof List) {
@@ -131,14 +130,14 @@ public class Evaluator {
 //                            Integer index2 = ((Number) evalAst(args.get(1))).intValue();
 //                            return ((List<?>) op).subList(index1, index2);
 //                        } else {
-//                            throw new RuntimeException(); // TODO
+//                            throw new RuntimeException();
 //                        }
 //                    } else if (op instanceof Map) {
 //                        if (args.size() == 1) {
 //                            Object key = evalAst(args.get(0));
 //                            return ((Map<?, ?>) op).get(key);
 //                        } else {
-//                            throw new RuntimeException(); // TODO
+//                            throw new RuntimeException();
 //                        }
 //                    } else {
 //                        // call method to java object
@@ -147,10 +146,10 @@ public class Evaluator {
 ////							List<?> methodArgs = (List<?>) evalAst(args.get(1));
 ////							return ReflectUtils.callMethod(op, methodName, methodArgs.toArray());
 ////						} else {
-//                        throw new RuntimeException(); // TODO
+//                        throw new RuntimeException();
 ////						}
 //                    }
-                    // throw new RuntimeException(); // TODO
+                    // throw new RuntimeException();
                 }
             } else {
                 throw new RuntimeException(ast.getClass().getName());

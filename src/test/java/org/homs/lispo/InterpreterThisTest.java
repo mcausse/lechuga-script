@@ -13,8 +13,8 @@ public class InterpreterThisTest {
 
     static Stream<Arguments> expressionProvider() {
         return Stream.of(
-                Arguments.of("[ (this :add [1]) ]", Arrays.asList(1, true)),
-                Arguments.of("(def m {[:age 15] [:getAge (fn [] (this :get [:age]))]})     ((m :get [:getAge]))", 15)
+                Arguments.of("[ (this :add 1) ]", Arrays.asList(1, true)),
+                Arguments.of("(def m {[:age 15] [:getAge (fn [] (this :get :age))]})     ((m :get :getAge))", 15)
         );
     }
 
@@ -25,7 +25,7 @@ public class InterpreterThisTest {
 
         var env = i.getEnvironment();
         var asts = i.parse(expression, "test");
-        Object result =i.evaluate(asts, env);
+        Object result = i.evaluate(asts, env);
 
         assertThat(result).isEqualTo(expectedResult);
     }

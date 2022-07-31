@@ -12,7 +12,7 @@
 
 (defn println [...xs]
     (defn print-one-arg [x]
-        ((field-static :java.lang.System :out) :print [x])
+        ((field-static :java.lang.System :out) :print x)
         x)
     (def r (for-each print-one-arg xs))
     ((field-static :java.lang.System :out) :println)
@@ -26,7 +26,7 @@
 (defn equals? [a b]
     (if (is-null? a)
         (is-null? b)
-        (a :equals [b])))
+        (a :equals b)))
 
 (defn to-string [x]
     (if (is-null? x)
@@ -35,7 +35,7 @@
 
 (defn concat [...xs]
     (defn concat-two-args [a b]
-        ((to-string a) :concat [(to-string b)]))
+        ((to-string a) :concat (to-string b)))
     (def r "")
     (for-each
         (fn [x]
@@ -52,22 +52,22 @@
     (def r [])
     (for-each
         (fn [e]
-            (r :add [(f e)]))
+            (r :add (f e)))
         l)
     r)
 
 
 (defn list/head [l]
     (if (l :isEmpty)
-        (throw (new :org.homs.lispo.util.ValidationError [
-            "list/head: the list is empty"]))
-        (l :get [0])))
+        (throw (new :org.homs.lispo.util.ValidationError
+            "list/head: the list is empty"))
+        (l :get 0)))
 
 (defn list/tail [l]
     (if (l :isEmpty)
-        (throw (new :org.homs.lispo.util.ValidationError [
-                    "list/tail: the list is empty"]))
-        (l :subList [1 (l :size)])))
+        (throw (new :org.homs.lispo.util.ValidationError
+                    "list/tail: the list is empty"))
+        (l :subList 1 (l :size))))
 
 
 (defn reduce [initial-value f l]
@@ -81,7 +81,7 @@
 
 
 (defn str/join [sep ss]
-    (call-static :java.lang.String :join [sep ss]))
+    (call-static :java.lang.String :join sep ss))
 
 
 
@@ -94,65 +94,40 @@
         r))
 
 
+
+
 (defn list/append [l a]
     (def r [])
-    (r :addAll [l])
-    (r :add [a])
+    (r :addAll l)
+    (r :add a)
     r)
-
-
-
-
-;;
-;; RECURSIVE REVERSE
-;;
-(defn list/reverse [l]
-    (if (l :isEmpty)
-        []
-        (list/append (list/reverse (list/tail l)) (list/head l))))
-
-
 
 (defn list/cons [e l]
     (def r [])
-    (r :add [e])
-    (r :addAll [l])
+    (r :add e)
+    (r :addAll l)
     r)
-
-
-
-
-
-
-
-
-
-(defn math/fact [x]
-    (set x (to-int x))
-	(if (equals? x 1)
-		1
-		(* x (math/fact (- x 1)))))
 
 
 
 
 (defn < [a b]
-	(call-static :org.homs.lispo.util.ComparableUtils :lt [a b]))
+	(call-static :org.homs.lispo.util.ComparableUtils :lt a b))
 
 (defn <= [a b]
-	(call-static :org.homs.lispo.util.ComparableUtils :le [a b]))
+	(call-static :org.homs.lispo.util.ComparableUtils :le a b))
 
 (defn > [a b]
-	(call-static :org.homs.lispo.util.ComparableUtils :gt [a b]))
+	(call-static :org.homs.lispo.util.ComparableUtils :gt a b))
 
 (defn >= [a b]
-	(call-static :org.homs.lispo.util.ComparableUtils :ge [a b]))
+	(call-static :org.homs.lispo.util.ComparableUtils :ge a b))
 
 (defn = [a b]
-	(call-static :org.homs.lispo.util.ComparableUtils :eq [a b]))
+	(call-static :org.homs.lispo.util.ComparableUtils :eq a b))
 
 (defn <> [a b]
-	(call-static :org.homs.lispo.util.ComparableUtils :ne [a b]))
+	(call-static :org.homs.lispo.util.ComparableUtils :ne a b))
 
 
 (defn dec [x]  (- x 1))
@@ -161,7 +136,7 @@
 
 
 
-(defn math/abs [x] (call-static :java.lang.Math :abs [x]))
+(defn math/abs [x] (call-static :java.lang.Math :abs x))
 
 
 
@@ -171,18 +146,16 @@
     (def r [])
     (def n min)
     (while (< n max)
-        (r :add [n])
+        (r :add n)
         (set n (+ n step)))
     r)
-
-
 
 (defn remove-if [f l]
     (def r [])
     (for-each
         (fn [e]
             (if (not (f e))
-                (r :add [e])))
+                (r :add e)))
         l)
     r)
 
@@ -191,21 +164,8 @@
     (for-each
         (fn [e]
             (if (f e)
-                (r :add [e])))
+                (r :add e)))
         l)
-    r)
-
-
-(defn primos [n]
-    (def r (seq 2 n))
-    (for-each
-        (fn [x]
-            (set r
-                (remove-if
-                    (fn [xx]
-                        (and (> xx x) (= 0 (% xx x))))
-                    r)))
-        (seq 2 n))
     r)
 
 
@@ -233,7 +193,7 @@
             (not r)
             (< i (l :size)))
 
-        (if (f (l :get [i]))
+        (if (f (l :get i))
             (set r true))
 
         (set i (+ i 1)))
@@ -247,7 +207,7 @@
             r
             (< i (l :size)))
 
-        (if (not (f (l :get [i])))
+        (if (not (f (l :get i)))
             (set r false))
 
         (set i (+ i 1)))
@@ -265,7 +225,7 @@
 
 
 (defn assert/fail [msg]
-    (throw (new :org.homs.lispo.util.AssertionError [msg]))
+    (throw (new :org.homs.lispo.util.AssertionError msg))
 )
 
 (defn assert/eq [expected obtained]
@@ -278,7 +238,7 @@
                     ">, but obtained <"
                     (to-string obtained)
                     ">"))
-            (throw (new :org.homs.lispo.util.AssertionError [message])))))
+            (throw (new :org.homs.lispo.util.AssertionError message)))))
 
 (defn assert/ne [expected obtained]
     (if (equals? expected obtained)
@@ -290,7 +250,7 @@
                     ">, but obtained <"
                     (to-string obtained)
                     ">"))
-            (throw (new :org.homs.lispo.util.AssertionError [message])))))
+            (throw (new :org.homs.lispo.util.AssertionError message)))))
 
 
 

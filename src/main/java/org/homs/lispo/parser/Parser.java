@@ -34,10 +34,8 @@ public class Parser {
             case NUMERIC:
                 try {
                     return new NumberAst(t, Integer.valueOf(t.value));
-                    // TODO return new NumberAst(t, new BigInteger(t.value));
                 } catch (NumberFormatException e) {
                     return new NumberAst(t, Double.valueOf(t.value));
-                    // TODO return new NumberAst(t, new BigDecimal(t.value));
                 }
             case INTERPOLATION_STRING:
                 return parseInterpolationStringAst(t);
