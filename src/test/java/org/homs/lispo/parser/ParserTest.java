@@ -44,7 +44,8 @@ public class ParserTest {
             "NUMERIC,123,NumberAst",
             "NUMERIC,3.14159,NumberAst",
             "STRING,joujou,StringAst",
-            "SYMBOL,*,SymbolAst"
+            "SYMBOL,*,SymbolAst",
+            "INTERPOLATION_STRING,joujuas,InterpolationStringAst"
     })
     void parse_the_atomic_tokens_properly(String tokenTypeName, String tokenValue, String simpleAstClassName) {
         Parser parser = new Parser(null);

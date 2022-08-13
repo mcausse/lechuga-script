@@ -2,11 +2,8 @@ package org.homs.lispo;
 
 import jucumber.JucumberJUnit5Runner;
 import jucumber.anno.*;
-import org.homs.lispo.parser.ast.Ast;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-
-import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -17,14 +14,29 @@ public class LechugaScriptAcceptance {
 
     Interpreter interpreter;
     Environment interpreterEnv;
-    List<Ast> parsedAsts;
+    Object result;
+    Exception exception;
 
     @Test
-    @Scenario("Verify that the STD library is ready to use, by using (reduce ...)")
+    @Scenario("a vanilla environment cannot execute (reduce ...)")
+    @Given("a prepared vanilla environment")
+    @When("the code is executed: '(reduce 0 (fn[acc x] (+ acc x)) [1 2 3 4])'")
+    @Then("an exception should be thrown: 'java.lang.RuntimeException: variable not defined: 'reduce''")
+    public void test01_Reduce_Without_Std_Should_Fail() throws Exception {
+    }
+
+    @Test
+    @Scenario("an Std environment can execute (reduce ...)")
     @Given("a prepared Std environment")
     @When("the code is executed: '(reduce 0 (fn[acc x] (+ acc x)) [1 2 3 4])'")
     @Then("the result should be '10'")
-    public void test01_Std_Is_Ready() throws Exception {
+    public void test02_Reduce_With_Std() throws Exception {
+    }
+
+    @Given("a prepared vanilla environment")
+    public void prepare_Vanilla_Environment() throws Throwable {
+        this.interpreter = new Interpreter();
+        this.interpreterEnv = interpreter.getEnvironment();
     }
 
     @Given("a prepared Std environment")
@@ -34,13 +46,30 @@ public class LechugaScriptAcceptance {
     }
 
     @When("the code is executed: '(.+?)'")
-    public void execute(String code) {
-        this.parsedAsts = this.interpreter.parse(code, getClass().getName());
+    public void execute(String code) throws Throwable {
+        this.exception = null;
+        this.result = null;
+        try {
+            var parsedAsts = this.interpreter.parse(code, getClass().getName());
+            this.result = interpreter.evaluate(parsedAsts, interpreterEnv);
+        } catch (Exception e) {
+            this.exception = e;
+        }
     }
 
     @Then("the result should be '(.+?)'")
-    public void assertResult(String result) throws Throwable {
-        Object r = interpreter.evaluate(parsedAsts, interpreterEnv);
-        assertThat(String.valueOf(r)).isEqualTo(result);
+    public void assertResult(String expectedResult) throws Throwable {
+        assertThat(String.valueOf(result)).isEqualTo(expectedResult);
+        assertThat(exception).isNull();
+    }
+
+    @Then("an exception should be thrown: '(.+?)'")
+    public void assertThatAnExceptionSouldBeThrown(String exception) {
+        Throwable e = this.exception;
+        while (e.getCause() != null) {
+            e = e.getCause();
+        }
+        assertThat(String.valueOf(e)).isEqualTo(exception);
+        assertThat(this.result).isNull();
     }
 }

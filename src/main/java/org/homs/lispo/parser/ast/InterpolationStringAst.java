@@ -6,7 +6,6 @@ import java.util.Collection;
 
 public class InterpolationStringAst extends Ast {
 
-
     public final String value;
     public final Collection<Ast> templateParts;
 

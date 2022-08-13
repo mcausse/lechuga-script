@@ -52,7 +52,7 @@ public class Interpreter {
                 } else {
                     valueType = value.getClass().getName();
                 }
-                throw new RuntimeException("a <" + Boolean.class.getName() + "> value is required, but obtained: <" + valueType + ">; at " + tokenAt);
+                throw new RuntimeException("a <" + expectedType.getName() + "> value is required, but obtained: <" + valueType + ">; at " + tokenAt);
             }
             return (T) value;
         }
@@ -166,7 +166,7 @@ public class Interpreter {
         Object evaluatedFunc = ev.evalAst((Ast) args.get(0));
         Func func = Interpreter.FuncUtils.validateNotNullType(tokenAt, Func.class, evaluatedFunc);
 
-        Iterable<Object> it = Interpreter.FuncUtils.validateNotNullType(tokenAt, Iterable.class, ev.evalAst((Ast) args.get(1)));
+        Iterable<?> it = Interpreter.FuncUtils.validateNotNullType(tokenAt, Iterable.class, ev.evalAst((Ast) args.get(1)));
 
         Object r = null;
         int index = 0;

@@ -4,7 +4,6 @@ import java.util.Iterator;
 
 public class Tokenizer implements Iterator<Token> {
 
-
     final String program;
     final String sourceDesc;
     int row, col;
@@ -43,9 +42,12 @@ public class Tokenizer implements Iterator<Token> {
                     int k = p;
                     while (k + "\"\"\"".length() <= program.length() && !program.startsWith("\"\"\"", k)) {
                         if (program.charAt(k) == '\\' && k + 1 < program.length() /*&& program.charAt(k + 1) == '"'*/) {
-                            k++;
+                            k++; // chupa the \
+                            char unescapedChar = getUnescapedChar(program.charAt(k));
+                            s.append(unescapedChar);
+                        } else {
+                            s.append(program.charAt(k));
                         }
-                        s.append(program.charAt(k));
                         k++;
                     }
                     if (k + "\"\"\"".length() > program.length()) {
@@ -60,9 +62,12 @@ public class Tokenizer implements Iterator<Token> {
                     int k = p;
                     while (k < program.length() && program.charAt(k) != '"') {
                         if (program.charAt(k) == '\\' && k + 1 < program.length() /*&& program.charAt(k + 1) == '"'*/) {
-                            k++;
+                            k++; // chupa the \
+                            char unescapedChar = getUnescapedChar(program.charAt(k));
+                            s.append(unescapedChar);
+                        } else {
+                            s.append(program.charAt(k));
                         }
-                        s.append(program.charAt(k));
                         k++;
                     }
                     if (k >= program.length()) {
@@ -145,6 +150,24 @@ public class Tokenizer implements Iterator<Token> {
             updateRowCol(i);
         }
         return r;
+    }
+
+    private char getUnescapedChar(char escapedChar) {
+        char unescapedChar;
+        switch (escapedChar) {
+            case 'n':
+                unescapedChar = '\n';
+                break;
+            case 'r':
+                unescapedChar = '\r';
+                break;
+            case 't':
+                unescapedChar = '\t';
+                break;
+            default:
+                unescapedChar = escapedChar;
+        }
+        return unescapedChar;
     }
 
     protected void consumeWhitespaces() {

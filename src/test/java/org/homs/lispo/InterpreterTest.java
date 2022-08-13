@@ -86,7 +86,8 @@ public class InterpreterTest {
                 Arguments.of("[42 3.14159 \"jou\" null false]", Arrays.asList(42, 3.14159, "jou", null, false)),
                 Arguments.of("{[1 :one][2 :two][3 :three]}", ordinalsMap),
 
-                Arguments.of("\"jo\\(\\)\\nu\"", "jo()nu"),
+                Arguments.of("\"jo\\(\\)\\nu\"", "jo()\nu"),
+                Arguments.of("\"\\t\\\"\\n\\r\"", "\t\"\n\r"),
 
                 Arguments.of("(multi)", null),
                 Arguments.of("(multi 1)", 1),
@@ -222,13 +223,40 @@ public class InterpreterTest {
         assertThat(result).isEqualTo(expectedResult);
     }
 
+    static Stream<Arguments> lambdaExpansionProvider() {
+        return Stream.of(
+                Arguments.of("(=> true)", "(fn [] true)"),
+                Arguments.of("(a b => (* a b))", "(fn [a b] (* a b))"),
+                Arguments.of("(a => (b => (* a b)))", "(fn [a] (fn [b] (* a b)))"),
+                Arguments.of("(a => (b => (c => (* a b c))))", "(fn [a] (fn [b] (fn [c] (* a b c))))"),
+
+                Arguments.of("((=> true))", "true"),
+                Arguments.of("((=> true false))", "false"),
+                Arguments.of("((a b => (* a b)) 2 3)", "6"),
+                Arguments.of("(((a => (b => (* a b))) 2) 3)", "6"),
+
+                Arguments.of("(a b => {[a b]})", "(fn [a b] {[a b]})"),
+                Arguments.of("((a b => {[a b]}) :age 12)", "{age=12}")
+        );
+    }
+
+    @ParameterizedTest
+    @MethodSource("lambdaExpansionProvider")
+    void test_lambdaExpansion(String expression, String expectedResult) throws Throwable {
+        Interpreter i = new Interpreter();
+
+        var env = i.getEnvironment();
+        var asts = i.parse(expression, "test");
+        Object result = i.evaluate(asts, env);
+
+        assertThat(String.valueOf(result)).isEqualTo(expectedResult);
+    }
     static Stream<Arguments> scriptsProvider() {
         return Stream.of(
                 Arguments.of("std-test.lsp", true),
                 Arguments.of("examples.lsp", true)
         );
     }
-
 
     @ParameterizedTest
     @MethodSource("scriptsProvider")

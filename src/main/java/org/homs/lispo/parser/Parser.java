@@ -44,7 +44,7 @@ public class Parser {
             case NULL:
                 return new NullAst(t);
             case BOOL:
-                return new BooleanAst(t, Boolean.valueOf(t.value));
+                return new BooleanAst(t, Boolean.parseBoolean(t.value));
             case SYMBOL:
                 return new SymbolAst(t, t.value);
             case OPEN_PAR:
@@ -106,30 +106,60 @@ public class Parser {
         return new MapAst(t, r);
     }
 
+    boolean isLambdaExpansionSymbol(Ast ast) {
+        return (ast instanceof SymbolAst) && "=>".equals(((SymbolAst) ast).value);
+    }
+
     protected ParenthesisAst parseParenthesisAst(Token t) {
 
         if (!tokenizer.hasNext()) {
             throw new RuntimeException("expected ) but EOF");
         }
-        Token operand = tokenizer.next();
-        Ast operator = parseToken(operand);
 
-        List<Ast> arguments = new ArrayList<>();
-        Token targ = t;
+        // the position of "=>" expansion symbol, if exists
+        int lambdaOperatorPos = -1;
+
+        List<Ast> parenthesisContent = new ArrayList<>();
+        Token nextToken = t;
         while (tokenizer.hasNext()) {
-            targ = tokenizer.next();
-            if (targ.type == EToken.CLOSE_PAR) {
+            nextToken = tokenizer.next();
+            if (nextToken.type == EToken.CLOSE_PAR) {
                 break;
             }
-            Ast v = parseToken(targ);
-            arguments.add(v);
-        }
+            Ast ast = parseToken(nextToken);
 
-        if (targ.type != EToken.CLOSE_PAR) {
+            if (isLambdaExpansionSymbol(ast)) {
+                lambdaOperatorPos = parenthesisContent.size();
+            }
+
+            parenthesisContent.add(ast);
+        }
+        if (nextToken.type != EToken.CLOSE_PAR) {
             throw new RuntimeException("expected ) but EOF; " + t.tokenAt);
         }
 
-        return new ParenthesisAst(t, operator, arguments);
+
+        if (lambdaOperatorPos >= 0) {
+
+            //
+            // LAMBDA EXPANSION
+            //
+            // converts the lambda expression (a b => (* a b)) to
+            // the expanded (fn [a b] (* a b))
+            //
+            ListAst fnArgsList = new ListAst(t, parenthesisContent.subList(0, lambdaOperatorPos));
+
+            Ast fnOperator = new SymbolAst(t, "fn");
+            List<Ast> fnArgs = new ArrayList<>();
+            fnArgs.add(fnArgsList);
+            fnArgs.addAll(parenthesisContent.subList(lambdaOperatorPos + 1, parenthesisContent.size()));
+
+            return new ParenthesisAst(t, fnOperator, fnArgs);
+        } else {
+            Ast operator = parenthesisContent.get(0);
+            List<Ast> arguments = parenthesisContent.subList(1, parenthesisContent.size());
+            return new ParenthesisAst(t, operator, arguments);
+        }
     }
 
     protected ListAst parseListAst(Token t) {

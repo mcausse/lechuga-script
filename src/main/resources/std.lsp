@@ -38,7 +38,7 @@
         ((to-string a) :concat (to-string b)))
     (def r "")
     (for-each
-        (fn [x]
+        (x =>
             (set r
                 (concat-two-args r x)))
         xs)
@@ -51,8 +51,9 @@
 (defn mapcar [f l]
     (def r [])
     (for-each
-        (fn [e]
-            (r :add (f e)))
+        ;;(fn [e]
+        ;;    (r :add (f e)))
+        (e => (r :add (f e)))
         l)
     r)
 
@@ -73,7 +74,8 @@
 (defn reduce [initial-value f l]
     (def acc initial-value)
     (for-each
-        (fn [x]
+        ;;(fn [x]
+        (x =>
             (set acc
                 (f acc x)))
         l)
@@ -89,7 +91,8 @@
     (fn [value]
         (def r value)
         (for-each
-            (fn [f] (set r (f r)))
+            ;;(fn [f] (set r (f r)))
+            (f => (set r (f r)))
             fs)
         r))
 
@@ -153,7 +156,8 @@
 (defn remove-if [f l]
     (def r [])
     (for-each
-        (fn [e]
+        ;;(fn [e]
+        (e =>
             (if (not (f e))
                 (r :add e)))
         l)
@@ -162,7 +166,8 @@
 (defn remove-if-not [f l]
     (def r [])
     (for-each
-        (fn [e]
+        ;;(fn [e]
+        (e =>
             (if (f e)
                 (r :add e)))
         l)

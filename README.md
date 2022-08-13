@@ -1,6 +1,6 @@
 ```
 ===================================
-BUILTIN DEFINITIONS
+BUILTIN
 ===================================
 %                *                +                -                /                and
 call-static      curry            def              defn             field-static     fn
@@ -9,7 +9,7 @@ quote            set              throw            to-byte          to-double   
 to-int           to-long          to-short         try-catch        while            
 
 ===================================
-STD DEFINITIONS
+STD
 ===================================
 <                <=               <>               =                >                >=
 any?             assert/eq        assert/fail      assert/ne        c/mapcar         c/reduce

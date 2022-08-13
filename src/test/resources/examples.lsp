@@ -99,5 +99,136 @@
 )
 
 
+(multi
+
+    ;;
+    ;; c/add is the currified form of +
+    ;;
+    (defn c/add [a]
+        (fn [b]
+            (+ a b)))
+
+    ;;
+    ;; c/mul is the currified form of *
+    ;;
+    (defn c/mul [a]
+        (fn [b]
+            (* a b)))
+
+    (assert/eq
+        26
+        ((composite
+            (c/add 3)
+            (c/mul 2)) 10))
+)
+
+(multi
+
+    ;;
+    ;; c/add is the currified form of +
+    ;;
+    (defn c/add [a]
+        (fn [b]
+            (+ a b)))
+
+    (def c/add
+        (a => (b => (+ a b))))
+
+    ;;
+    ;; c/mul is the currified form of *
+    ;;
+    (defn c/mul [a]
+        (b =>
+            (* a b)))
+
+    (assert/eq
+        26
+        ((composite
+            (c/add 3)
+            (c/mul 2)) 10))
+)
+
+
+(multi
+
+    (defn sqr [x]
+        (* x x))
+
+    (assert/eq 1 (sqr 1))
+    (assert/eq 4 (sqr 2))
+    (assert/eq 9 (sqr 3))
+    (assert/eq 16 (sqr 4))
+
+    (defn isqrt [n]
+        (set n (to-int n))
+        (def i 1)
+        (while (<= (* i i) n)
+            (set i (+ i 1)))
+        (- i 1))
+
+    (assert/eq 0 (isqrt  0))
+    (assert/eq 0 (isqrt  0.5))
+    (assert/eq 1 (isqrt  1))
+    (assert/eq 1 (isqrt  2))
+    (assert/eq 1 (isqrt  3))
+    (assert/eq 2 (isqrt  4))
+    (assert/eq 2 (isqrt  5))
+    (assert/eq 2 (isqrt  6))
+    (assert/eq 2 (isqrt  7))
+    (assert/eq 2 (isqrt  8))
+    (assert/eq 3 (isqrt  9))
+    (assert/eq 3 (isqrt 10))
+    (assert/eq 3 (isqrt 11))
+    (assert/eq 3 (isqrt 12))
+    (assert/eq 3 (isqrt 13))
+    (assert/eq 3 (isqrt 14))
+    (assert/eq 3 (isqrt 15))
+    (assert/eq 4 (isqrt 16))
+    (assert/eq 4 (isqrt 17))
+
+
+    ;; =============================
+    ;; k(i) = i * i
+    ;; k(i+1) = (i+1) * (i+1)
+    ;; -----------------------------
+    ;; k(i+1) = i*i + i + i + 1
+    ;; k(i+1) = i*i + 2*i + 1
+    ;; k(i+1) = k(i) + 2*i + 1
+    ;; =============================
+    ;; k(i+1) = k(i) + i << 1 + 1
+    ;; =============================
+
+    (defn isqrt [n]
+        (set n (to-int n))
+        (def i 1)
+        (def k 1)
+        (while (<= k n)
+            (set k (+ k (* i 2) 1))
+            (set i (+ i 1)))
+        (- i 1))
+
+    (assert/eq 0 (isqrt  0))
+    (assert/eq 0 (isqrt  0.5))
+    (assert/eq 1 (isqrt  1))
+    (assert/eq 1 (isqrt  2))
+    (assert/eq 1 (isqrt  3))
+    (assert/eq 2 (isqrt  4))
+    (assert/eq 2 (isqrt  5))
+    (assert/eq 2 (isqrt  6))
+    (assert/eq 2 (isqrt  7))
+    (assert/eq 2 (isqrt  8))
+    (assert/eq 3 (isqrt  9))
+    (assert/eq 3 (isqrt 10))
+    (assert/eq 3 (isqrt 11))
+    (assert/eq 3 (isqrt 12))
+    (assert/eq 3 (isqrt 13))
+    (assert/eq 3 (isqrt 14))
+    (assert/eq 3 (isqrt 15))
+    (assert/eq 4 (isqrt 16))
+    (assert/eq 4 (isqrt 17))
+)
+
+
+
 true
 

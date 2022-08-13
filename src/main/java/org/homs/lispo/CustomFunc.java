@@ -44,7 +44,6 @@ public class CustomFunc implements Func {
         for (int i = 0; i < argNames.size(); i++) {
             String argName = argNames.get(i);
 
-
             final Object argValue;
             {
                 if (argName.endsWith("?")) {
