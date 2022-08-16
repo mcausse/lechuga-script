@@ -68,7 +68,6 @@ public class Evaluator {
                     return f.eval(ast.getTokenAt(), this, args);
                 } else {
 
-
                     List<Ast> args = parenthesisAst.arguments;
 
                     // TODO validate arguments?

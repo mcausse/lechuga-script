@@ -126,6 +126,12 @@ public class InterpreterTest {
 
                 Arguments.of("((fn [x?] x))", null),
                 Arguments.of("((fn [x?] x)2)", 2),
+                Arguments.of("((fn [x? y?] x) 2 3)", 2),
+                Arguments.of("((fn [x? y?] y) 2 3)", 3),
+                Arguments.of("((fn [x? y?] x) 2)", 2),
+                Arguments.of("((fn [x? y?] y) 2)", null),
+                Arguments.of("((fn [x? y?] x))", null),
+                Arguments.of("((fn [x? y?] y))", null),
 
                 Arguments.of("(defn identity [x] x) (identity 1)", 1),
                 Arguments.of("((defn identity [x] x) 1)", 1),
@@ -251,6 +257,7 @@ public class InterpreterTest {
 
         assertThat(String.valueOf(result)).isEqualTo(expectedResult);
     }
+
     static Stream<Arguments> scriptsProvider() {
         return Stream.of(
                 Arguments.of("std-test.lsp", true),

@@ -148,15 +148,34 @@
             (c/mul 2)) 10))
 )
 
+(multi
+
+    (def mul (a => (b => (* a b))))
+
+    (assert/eq
+        30
+        ((composite
+            (mul 2)
+            (mul 3)) 5))
+
+    (def mulBy2 (mul 2))
+    (def mulBy3 (mul 3))
+
+    (assert/eq
+        30
+        ((composite
+            mulBy2
+            mulBy3) 5))
+)
 
 (multi
 
     (defn sqr [x]
         (* x x))
 
-    (assert/eq 1 (sqr 1))
-    (assert/eq 4 (sqr 2))
-    (assert/eq 9 (sqr 3))
+    (assert/eq  1 (sqr 1))
+    (assert/eq  4 (sqr 2))
+    (assert/eq  9 (sqr 3))
     (assert/eq 16 (sqr 4))
 
     (defn isqrt [n]
@@ -192,7 +211,6 @@
     ;; k(i+1) = (i+1) * (i+1)
     ;; -----------------------------
     ;; k(i+1) = i*i + i + i + 1
-    ;; k(i+1) = i*i + 2*i + 1
     ;; k(i+1) = k(i) + 2*i + 1
     ;; =============================
     ;; k(i+1) = k(i) + i << 1 + 1

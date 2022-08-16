@@ -58,7 +58,7 @@ public class Jucumber {
                 }
 
                 for (String stepRegexp : stepRegexps) {
-                    Pattern p = Pattern.compile(stepRegexp);
+                    Pattern p = Pattern.compile(stepRegexp, Pattern.DOTALL);
                     Matcher m = p.matcher(predicate);
                     if (m.matches()) {
                         List<String> args = new ArrayList<>();

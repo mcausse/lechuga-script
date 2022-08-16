@@ -35,47 +35,10 @@ public class Tokenizer implements Iterator<Token> {
 
         switch (c) {
             case '"': {
-
                 if (program.startsWith("\"\"\"", p)) {
-                    p += 3; // chupa """
-                    StringBuilder s = new StringBuilder();
-                    int k = p;
-                    while (k + "\"\"\"".length() <= program.length() && !program.startsWith("\"\"\"", k)) {
-                        if (program.charAt(k) == '\\' && k + 1 < program.length() /*&& program.charAt(k + 1) == '"'*/) {
-                            k++; // chupa the \
-                            char unescapedChar = getUnescapedChar(program.charAt(k));
-                            s.append(unescapedChar);
-                        } else {
-                            s.append(program.charAt(k));
-                        }
-                        k++;
-                    }
-                    if (k + "\"\"\"".length() > program.length()) {
-                        throw new RuntimeException("expected closing \"\"\" but eof; opened at " + sourceDesc + ":" + row + ":" + col);
-                    }
-                    String value = s.toString();
-                    p = k + 3; // chupa """
-                    r = new Token(EToken.INTERPOLATION_STRING, value, sourceDesc, row, col);
+                    r = consumeString("\"\"\"", EToken.INTERPOLATION_STRING);
                 } else {
-                    p++; // chupa "
-                    StringBuilder s = new StringBuilder();
-                    int k = p;
-                    while (k < program.length() && program.charAt(k) != '"') {
-                        if (program.charAt(k) == '\\' && k + 1 < program.length() /*&& program.charAt(k + 1) == '"'*/) {
-                            k++; // chupa the \
-                            char unescapedChar = getUnescapedChar(program.charAt(k));
-                            s.append(unescapedChar);
-                        } else {
-                            s.append(program.charAt(k));
-                        }
-                        k++;
-                    }
-                    if (k >= program.length()) {
-                        throw new RuntimeException("expected closing \" but eof; opened at " + sourceDesc + ":" + row + ":" + col);
-                    }
-                    String value = s.toString();
-                    p = k + 1; // chupa "
-                    r = new Token(EToken.STRING, value, sourceDesc, row, col);
+                    r = consumeString("\"", EToken.STRING);
                 }
                 break;
             }
@@ -149,6 +112,30 @@ public class Tokenizer implements Iterator<Token> {
         for (int i = beginTokenPos; i < p; i++) {
             updateRowCol(i);
         }
+        return r;
+    }
+
+    protected Token consumeString(String delimiter, EToken tokenType) {
+        Token r;
+        p += delimiter.length(); // chupa """
+        StringBuilder s = new StringBuilder();
+        int k = p;
+        while (k + delimiter.length() <= program.length() && !program.startsWith(delimiter, k)) {
+            if (program.charAt(k) == '\\' && k + 1 < program.length() /*&& program.charAt(k + 1) == '"'*/) {
+                k++; // chupa the \
+                char unescapedChar = getUnescapedChar(program.charAt(k));
+                s.append(unescapedChar);
+            } else {
+                s.append(program.charAt(k));
+            }
+            k++;
+        }
+        if (k + delimiter.length() > program.length()) {
+            throw new RuntimeException("expected closing " + delimiter + " but eof; opened at " + sourceDesc + ":" + row + ":" + col);
+        }
+        String value = s.toString();
+        p = k + delimiter.length(); // chupa """
+        r = new Token(tokenType, value, sourceDesc, row, col);
         return r;
     }
 
