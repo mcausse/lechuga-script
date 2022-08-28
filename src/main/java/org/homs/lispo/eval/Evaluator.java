@@ -109,12 +109,8 @@ public class Evaluator {
     protected List<Object> evalListAst(List<Ast> listAstValues) throws Throwable {
         List<Object> r = new ArrayList<>();
 
-        // "this" feature
-        Evaluator ev = new Evaluator(this);
-        ev.getEnvironment().def("this", r);
-
         for (Ast a : listAstValues) {
-            r.add(ev.evalAst(a));
+            r.add(evalAst(a));
         }
         return r;
     }
@@ -122,13 +118,9 @@ public class Evaluator {
     protected Map<Object, Object> evalMapAst(Map<Ast, Ast> mapAstValues) throws Throwable {
         Map<Object, Object> r = new LinkedHashMap<>();
 
-        // "this" feature
-        Evaluator ev = new Evaluator(this);
-        ev.getEnvironment().def("this", r);
-
         for (Entry<Ast, Ast> a : mapAstValues.entrySet()) {
-            Object k = ev.evalAst(a.getKey());
-            Object v = ev.evalAst(a.getValue());
+            Object k = evalAst(a.getKey());
+            Object v = evalAst(a.getValue());
             r.put(k, v);
         }
         return r;

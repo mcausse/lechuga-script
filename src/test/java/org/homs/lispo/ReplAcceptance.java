@@ -48,6 +48,4 @@ public class ReplAcceptance {
         String result = os.toString(StandardCharsets.UTF_8);
         assertThat(result.trim()).isEqualTo(expectedResult);
     }
-
-
 }

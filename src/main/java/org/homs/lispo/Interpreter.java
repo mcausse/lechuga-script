@@ -58,7 +58,14 @@ public class Interpreter {
         }
     }
 
-    final Func funcMulti = (tokenAt, ev, args) -> args.isEmpty() ? null : args.get(args.size() - 1);
+    final Func funcMulti = (tokenAt, ev, args) -> {
+        Evaluator ev2 = new Evaluator(ev);
+        Object r = null;
+        for (var arg : args) {
+            r = ev2.evalAst((Ast)arg);
+        }
+        return r;
+    };
 
     final Func funcQuote = (tokenAt, ev, args) -> {
         Interpreter.FuncUtils.verifyArgumentsNumber(tokenAt, 1, args);
@@ -308,7 +315,7 @@ public class Interpreter {
     final Set<String> lazyFuncNames = new LinkedHashSet<>();
 
     {
-        register("multi", false, funcMulti);
+        register("multi", true, funcMulti);
 
         register("quote", true, funcQuote);
 

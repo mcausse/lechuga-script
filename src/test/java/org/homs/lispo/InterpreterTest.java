@@ -261,7 +261,8 @@ public class InterpreterTest {
     static Stream<Arguments> scriptsProvider() {
         return Stream.of(
                 Arguments.of("std-test.lsp", true),
-                Arguments.of("examples.lsp", true)
+                Arguments.of("examples.lsp", true),
+                Arguments.of("hores.lsp", true)
         );
     }
 
