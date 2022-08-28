@@ -30,7 +30,7 @@
 
 (try-catch
     (assert/fail "an exception should be thrown.")
-    :org.homs.lispo.util.AssertionError
+    :org.homs.lechugascript.util.AssertionError
     (fn [e at]
         (assert/eq "an exception should be thrown." (e :getMessage))))
 
@@ -81,7 +81,7 @@
         (list/head [])
         (assert/fail "an exception should be thrown")
     )
-    :org.homs.lispo.util.ValidationError
+    :org.homs.lechugascript.util.ValidationError
     (fn[e]
         ;; (e :printStackTrace)
         (assert/eq "list/head: the list is empty" (e :getMessage))
@@ -96,7 +96,7 @@
     (multi
         (list/tail [])
         (assert/fail "an exception should be thrown"))
-    :org.homs.lispo.util.ValidationError
+    :org.homs.lechugascript.util.ValidationError
     (fn [e]
         (assert/eq "list/tail: the list is empty" (e :getMessage)))
 )
@@ -118,7 +118,7 @@
 
 
 (try-catch
-    ;(throw (new :org.homs.lispo.util.AssertionError :fallaste))
+    ;(throw (new :org.homs.lechugascript.util.AssertionError :fallaste))
     (throw (new :java.lang.RuntimeException :fallaste))
     :java.lang.RuntimeException
     (fn [e] (println e))
@@ -453,11 +453,11 @@
 (multi
 
     (def dogs-list [
-        (new :org.homs.lispo.InterpreterTest$Dog 100 :faria)
-        (new :org.homs.lispo.InterpreterTest$Dog 101 :din)
-        (new :org.homs.lispo.InterpreterTest$Dog 102 :negra)
-        (new :org.homs.lispo.InterpreterTest$Dog 103 :blanca)
-        (new :org.homs.lispo.InterpreterTest$Dog 104 :gossa)
+        (new :org.homs.lechugascript.InterpreterTest$Dog 100 :faria)
+        (new :org.homs.lechugascript.InterpreterTest$Dog 101 :din)
+        (new :org.homs.lechugascript.InterpreterTest$Dog 102 :negra)
+        (new :org.homs.lechugascript.InterpreterTest$Dog 103 :blanca)
+        (new :org.homs.lechugascript.InterpreterTest$Dog 104 :gossa)
     ])
 
     (def composition

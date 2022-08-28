@@ -9,7 +9,6 @@
     <version>0.0.1-SNAPSHOT</version>
 
     <name>LechugaScript</name>
-    <description>a brain-f*cking scripting language</description>
 
     <properties>
         <maven.compiler.source>11</maven.compiler.source>

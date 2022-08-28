@@ -58,13 +58,13 @@
 
 (defn list/head [l]
     (if (l :isEmpty)
-        (throw (new :org.homs.lispo.util.ValidationError
+        (throw (new :org.homs.lechugascript.util.ValidationError
             "list/head: the list is empty"))
         (l :get 0)))
 
 (defn list/tail [l]
     (if (l :isEmpty)
-        (throw (new :org.homs.lispo.util.ValidationError
+        (throw (new :org.homs.lechugascript.util.ValidationError
                     "list/tail: the list is empty"))
         (l :subList 1 (l :size))))
 
@@ -111,22 +111,22 @@
 
 
 (defn < [a b]
-	(call-static :org.homs.lispo.util.ComparableUtils :lt a b))
+	(call-static :org.homs.lechugascript.util.ComparableUtils :lt a b))
 
 (defn <= [a b]
-	(call-static :org.homs.lispo.util.ComparableUtils :le a b))
+	(call-static :org.homs.lechugascript.util.ComparableUtils :le a b))
 
 (defn > [a b]
-	(call-static :org.homs.lispo.util.ComparableUtils :gt a b))
+	(call-static :org.homs.lechugascript.util.ComparableUtils :gt a b))
 
 (defn >= [a b]
-	(call-static :org.homs.lispo.util.ComparableUtils :ge a b))
+	(call-static :org.homs.lechugascript.util.ComparableUtils :ge a b))
 
 (defn = [a b]
-	(call-static :org.homs.lispo.util.ComparableUtils :eq a b))
+	(call-static :org.homs.lechugascript.util.ComparableUtils :eq a b))
 
 (defn <> [a b]
-	(call-static :org.homs.lispo.util.ComparableUtils :ne a b))
+	(call-static :org.homs.lechugascript.util.ComparableUtils :ne a b))
 
 
 (defn dec [x]  (- x 1))
@@ -224,7 +224,7 @@
 
 
 (defn assert/fail [msg]
-    (throw (new :org.homs.lispo.util.AssertionError msg))
+    (throw (new :org.homs.lechugascript.util.AssertionError msg))
 )
 
 (defn assert/eq [expected obtained]
@@ -237,7 +237,7 @@
                     ">, but obtained <"
                     (to-string obtained)
                     ">"))
-            (throw (new :org.homs.lispo.util.AssertionError message)))))
+            (throw (new :org.homs.lechugascript.util.AssertionError message)))))
 
 (defn assert/ne [expected obtained]
     (if (equals? expected obtained)
@@ -249,7 +249,7 @@
                     ">, but obtained <"
                     (to-string obtained)
                     ">"))
-            (throw (new :org.homs.lispo.util.AssertionError message)))))
+            (throw (new :org.homs.lechugascript.util.AssertionError message)))))
 
 
 
