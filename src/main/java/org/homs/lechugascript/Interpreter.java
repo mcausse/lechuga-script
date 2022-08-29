@@ -62,7 +62,7 @@ public class Interpreter {
         Evaluator ev2 = new Evaluator(ev);
         Object r = null;
         for (var arg : args) {
-            r = ev2.evalAst((Ast)arg);
+            r = ev2.evalAst((Ast) arg);
         }
         return r;
     };
@@ -419,5 +419,9 @@ public class Interpreter {
             result = evaluator.evalAst(ast);
         }
         return result;
+    }
+
+    public Evaluator getEvaluatorInstance(Environment environment) {
+        return new Evaluator(environment, lazyFuncNames);
     }
 }

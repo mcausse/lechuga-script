@@ -1,0 +1,70 @@
+
+    (defn replaceTags [text]
+        (def r text)
+        (set r (replace-tags r "{guid}" generateGUID))
+        (set r (replace-tags r "{timehash}" generateTimeHash))
+        (set r (replace-tags r "{currentpath}" generateCurrentpath))
+        r)
+
+
+    ;;;
+    ;;;         Returns a GUID hash value.
+    ;;;
+    ;;;         could it return repeat? because Guid never are going to repeat
+    ;;;
+    ;;;         @angel Yes, it is theoretically possible for the UUID.randomUUID method to return a duplicate, but this is not
+    ;;;         at all a realistic concern. The Oracle/OpenJDK implementation uses a cryptographically-strong random number
+    ;;;         generator. Given that, and given the astronomical range given by so many bits in a UUID, you can generate many
+    ;;;         millions of such values in your app and still sleep well. Using one of the other variants further reduces the
+    ;;;         possibility of collisions even closer to zero because of using "space and time", [1] MAC address or name, and
+    ;;;         [2] current date-time, as constraints.
+    ;;;
+    ;;;         https://stackoverflow.com/questions/2982748/create-a-guid-in-java
+    ;;;
+    ;;;         Examples:
+    ;;;             b300db64-5a42-4730-b4f2-f9c2d5f57172
+    ;;;             5871b452-0475-4958-9df0-666b38ae9d76
+    ;;;             3c257d79-1059-49b9-b799-2d54f5b598b2
+    ;;;             0f1d61a9-14cf-4691-ae90-3eefe3129dd6
+    ;;;             e4eb5ec8-6015-4939-b6c4-76616cbfff35
+    ;;;
+    (defn generateGUID []
+        (to-string (call-static :java.util.UUID :randomUUID)))
+
+    ;;;
+    ;;;         Returns an hexadecimal value based on the current time in millis + nanos since 01/01/1970.
+    ;;;
+    ;;;         Examples:
+    ;;;             859427290eab0
+    ;;;             85942729127a0
+    ;;;             8594272915acc
+    ;;;             8594272919564
+    ;;;
+    (defn generateTimeHash []
+        (call-static :java.lang.Long :toHexString
+            (+
+                (call-static :java.lang.System :currentTimeMillis)
+                (call-static :java.lang.System :nanoTime))))
+
+    (defn generateCurrentpath []
+        ((new :java.io.File "") :getAbsolutePath))
+
+
+    (defn replace-tags [text tag tag-generator]
+        (def strb (new :java.lang.StringBuilder))
+        (def pos 0)
+        (def newPos null)
+        (while (>= (set newPos (text :indexOf tag pos)) 0)
+            (strb :append text pos newPos)
+            (strb :append (tag-generator))
+            (set pos (+ newPos (tag :length))))
+        (strb :append (text :substring pos))
+        (strb :toString))
+
+    (multi
+        (def i 0)
+        (def generator (=> (set i (+ i 1))))
+        (assert/eq
+            "-1-2-3-"
+            (replace-tags "-{tag}-{tag}-{tag}-" "{tag}" generator)))
+
