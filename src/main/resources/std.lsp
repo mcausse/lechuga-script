@@ -33,16 +33,6 @@
         "null"
         (x :toString)))
 
-(defn concat [...xs]
-    (defn concat-two-args [a b]
-        ((to-string a) :concat (to-string b)))
-    (def r "")
-    (for-each
-        (x =>
-            (set r
-                (concat-two-args r x)))
-        xs)
-    r)
 
 
 
@@ -77,6 +67,28 @@
                 (f acc x)))
         l)
     acc)
+
+
+
+; (defn concat [...xs]
+;     (defn concat-two-args [a b]
+;         ((to-string a) :concat (to-string b)))
+;     (def r "")
+;     (for-each
+;         (x =>
+;             (set r
+;                 (concat-two-args r x)))
+;         xs)
+;     r)
+
+(defn concat [...xs]
+     (defn concat-two-args [a b]
+         ((to-string a) :concat (to-string b)))
+    (reduce "" concat-two-args xs))
+
+
+
+
 
 
 (defn str/join [sep ss]

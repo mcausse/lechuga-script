@@ -6,7 +6,7 @@ import java.io.File;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class BindingsTest {
+public class SequenceTagsReplacerBindingsTest {
 
     @Test
     void generateTimeHash() throws Throwable {
@@ -33,9 +33,10 @@ public class BindingsTest {
 
         SequenceTagsReplacer a = InterfaceBindingFactory.build(SequenceTagsReplacer.class);
 
-        String r = a.generateCurrentpath();
+        String r = a.generateCurrentPath();
 
         assertThat(new File(r).isDirectory()).isTrue();
+        assertThat(r).isEqualTo(new File("").getAbsolutePath());
     }
 
     @Test

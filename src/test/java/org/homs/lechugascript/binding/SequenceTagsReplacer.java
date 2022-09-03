@@ -6,7 +6,7 @@ public interface SequenceTagsReplacer {
 
     String generateTimeHash();
 
-    String generateCurrentpath();
+    String generateCurrentPath();
 
     String replaceTags(String text);
 
