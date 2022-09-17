@@ -82,9 +82,10 @@
 ;     r)
 
 (defn concat [...xs]
-     (defn concat-two-args [a b]
-         ((to-string a) :concat (to-string b)))
-    (reduce "" concat-two-args xs))
+    (reduce
+        ""
+        (a b => ((to-string a) :concat (to-string b)))
+        xs))
 
 
 

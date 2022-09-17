@@ -64,6 +64,9 @@ public class CustomFunc implements Func {
                     }
                     argValue = v;
                 } else {
+                    if (i >= args.size()) {
+                        throw new RuntimeException("a non-optional argument is missing: #" + i + " (argument name: '" + argName + "') ");
+                    }
                     argValue = args.get(i);
                 }
             }

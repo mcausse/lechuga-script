@@ -6,15 +6,10 @@
 ;
 ; public class CmdArgumentsProcessor {
 ;
-;     public final String[] args;
 ;     public final Map<String, String> modifiers = new LinkedHashMap<>();
 ;     public final List<String> files = new ArrayList<>();
 ;
-;    public CmdArgumentsProcessor(String[] args) {
-;        this.args = args;
-;    }
-;
-;    public void processArgs() {
+;    public void processArgs(String[] args) {
 ;        var p = Pattern.compile("--(.+?)=(.+?)");
 ;        for (String arg : args) {
 ;            if (arg.startsWith("--")) {
@@ -36,13 +31,6 @@
 (def modifiers {})
 (def files [])
 
-(defn getModifiers []
-    modifiers)
-
-(defn getFiles []
-    files)
-
-
 (def p (call-static :java.util.regex.Pattern :compile "--(.+?)=(.+?)"))
 
 (defn processArgs [args]
@@ -61,3 +49,10 @@
                 (throw (new :java.lang.RuntimeException
                     (concat "unexpected argument: " arg)))))
         (files :add arg)))
+
+(defn getModifiers []
+    modifiers)
+
+(defn getFiles []
+    files)
+
