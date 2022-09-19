@@ -19,6 +19,7 @@ import java.io.File;
 import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.util.*;
+import java.util.function.BiConsumer;
 
 public class Interpreter {
 
@@ -396,7 +397,7 @@ public class Interpreter {
         return r;
     }
 
-    public List<Ast> parseFileFromClaspath(String fileName, Charset charset) throws Throwable {
+    public List<Ast> parseFileFromClasspath(String fileName, Charset charset) throws Throwable {
         ClassLoader loader = Thread.currentThread().getContextClassLoader();
         InputStream is = loader.getResourceAsStream(fileName);
         var code = TextFileUtils.read(is, charset);
@@ -413,7 +414,13 @@ public class Interpreter {
     }
 
     public Object evaluate(List<Ast> asts, Environment environment) throws Throwable {
+        return evaluate(asts, environment, null);
+    }
+
+    public Object evaluate(List<Ast> asts, Environment environment, BiConsumer<Environment, Ast> evaluatingAstsListener) throws Throwable {
         Evaluator evaluator = new Evaluator(environment, lazyFuncNames);
+        evaluator.setEvaluatingAstsListener(evaluatingAstsListener);
+
         Object result = null;
         for (Ast ast : asts) {
             result = evaluator.evalAst(ast);

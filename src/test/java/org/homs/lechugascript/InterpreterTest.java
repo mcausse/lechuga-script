@@ -1,6 +1,7 @@
 package org.homs.lechugascript;
 
 import org.homs.lechugascript.parser.ast.*;
+import org.homs.lechugascript.tokenizer.TokenAt;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -8,6 +9,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 import java.nio.charset.StandardCharsets;
 import java.util.*;
+import java.util.function.BiConsumer;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -269,13 +271,29 @@ public class InterpreterTest {
     @ParameterizedTest
     @MethodSource("scriptsProvider")
     void testRunScript(String scriptName, Object expectedResult) throws Throwable {
+
+        // TODO coverage
+        final Map<String, Set<TokenAt>> coverajes = new TreeMap<>();
+        BiConsumer<Environment, Ast> coverajesListener = (env, ast) -> {
+            var tokenAt = ast.getTokenAt();
+            coverajes.putIfAbsent(tokenAt.sourceDesc, new TreeSet<>());
+            coverajes.get(tokenAt.sourceDesc).add(tokenAt);
+        };
+
         Interpreter i = new Interpreter();
 
         var env = i.getStdEnvironment();
-        var asts = i.parseFileFromClaspath(scriptName, StandardCharsets.UTF_8);
-        Object result = i.evaluate(asts, env);
+        var asts = i.parseFileFromClasspath(scriptName, StandardCharsets.UTF_8);
+        Object result = i.evaluate(asts, env, coverajesListener);
 
         assertThat(result).isEqualTo(expectedResult);
+
+        // TODO coverage
+        for (var source : coverajes.entrySet()) {
+            for (TokenAt line : source.getValue()) {
+                System.out.println(line);
+            }
+        }
     }
 
     @Test

@@ -25,7 +25,7 @@ public class InterfaceBindingFactory {
                     {
                         this.interpreter = new Interpreter();
                         this.env = new Environment(interpreter.getStdEnvironment());
-                        List<Ast> asts = this.interpreter.parseFileFromClaspath(interfaceClass.getSimpleName() + ".lechuga", StandardCharsets.UTF_8);
+                        List<Ast> asts = this.interpreter.parseFileFromClasspath(interfaceClass.getSimpleName() + ".lechuga", StandardCharsets.UTF_8);
                         this.interpreter.evaluate(asts, env);
                     }
 

@@ -8,6 +8,7 @@ import org.homs.lechugascript.util.ValidationError;
 
 import java.util.*;
 import java.util.Map.Entry;
+import java.util.function.BiConsumer;
 
 public class Evaluator {
 
@@ -19,19 +20,40 @@ public class Evaluator {
      */
     final Collection<String> lazyFuncNames;
 
+    BiConsumer<Environment, Ast> evaluatingAstsListener;
+
     public Evaluator(Environment env, Collection<String> lazyFuncNames) {
         super();
         this.env = env;
         this.lazyFuncNames = lazyFuncNames;
     }
 
+    /**
+     * copy C'tor with a new, nested {@link Environment}.
+     *
+     * @param ev the instance to copy
+     */
     public Evaluator(Evaluator ev/*, Ast thisReference*/) {
         super();
         this.env = new Environment(ev.env);
         this.lazyFuncNames = ev.lazyFuncNames;
+        this.evaluatingAstsListener = ev.evaluatingAstsListener;
+    }
+
+    /**
+     * Sets a listener for debug/coverage purposes
+     *
+     * @param evaluatingAstsListener the listener
+     */
+    public void setEvaluatingAstsListener(BiConsumer<Environment, Ast> evaluatingAstsListener) {
+        this.evaluatingAstsListener = evaluatingAstsListener;
     }
 
     public Object evalAst(Ast ast) throws Throwable {
+
+        if (evaluatingAstsListener != null) {
+            evaluatingAstsListener.accept(env, ast);
+        }
 
         try {
             if (ast instanceof InterpolationStringAst) {
