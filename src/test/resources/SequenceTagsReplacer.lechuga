@@ -1,29 +1,4 @@
 
-    (defn replaceTags [text]
-        (def r text)
-        (set r (replace-tags r "{guid}" generateGUID))
-        (set r (replace-tags r "{timehash}" generateTimeHash))
-        (set r (replace-tags r "{currentpath}" generateCurrentPath))
-        r)
-
-    (defn replace-tags [text tag tag-generator]
-        (def strb (new :java.lang.StringBuilder))
-        (def pos 0)
-        (def newPos null)
-        (while (>= (set newPos (text :indexOf tag pos)) 0)
-            (strb :append text pos newPos)
-            (strb :append (tag-generator))
-            (set pos (+ newPos (tag :length))))
-        (strb :append (text :substring pos))
-        (strb :toString))
-
-    (multi
-        (def i 0)
-        (def generator (=> (set i (+ i 1))))
-        (assert/eq
-            "-1-2-3-"
-            (replace-tags "-{tag}-{tag}-{tag}-" "{tag}" generator)))
-
     ;;;
     ;;;         Returns a GUID hash value.
     ;;;
@@ -68,3 +43,49 @@
 
 
 
+
+    ;;
+    ;; Imperative-style replacements function, implementing
+    ;; the appendReplacement/appendTail pattern, in a *dynamic currified* form.
+    ;;
+    ;; @param tag the tag to replace (e.g. "`{guid}`").
+    ;; @param tag-generator provider function for generating the replacement value for a tag.
+    ;; @return a function that applies the replacements for the given text.
+    ;;
+    (def replace-tags
+        (curry
+            (fn [tag tag-generator text]
+                (def strb (new :java.lang.StringBuilder))
+                (def pos 0)
+                (def newPos null)
+                (while (>= (set newPos (text :indexOf tag pos)) 0)
+                    (strb :append text pos newPos)
+                    (strb :append (tag-generator))
+                    (set pos (+ newPos (tag :length))))
+                (strb :append (text :substring pos))
+                (strb :toString))))
+
+    ;;
+    ;; A sublime function that is a composition of the currified form of the `replace-tags`.
+    ;; The composition covers all the available tag replacements.
+    ;;
+    (def replace-tags-composition
+        (composite
+            (replace-tags "{guid}" generateGUID)
+            (replace-tags "{timehash}" generateTimeHash)
+            (replace-tags "{currentpath}" generateCurrentPath)))
+
+    ;;
+    ;; Application of the `replace-tags-composition`.
+    ;;
+    (defn replaceTags [text]
+        (replace-tags-composition text))
+
+
+
+    (multi
+        (def i 0)
+        (def generator (=> (set i (+ i 1))))
+        (assert/eq
+            "-1-2-3-"
+            ((replace-tags "{tag}" generator) "-{tag}-{tag}-{tag}-")))

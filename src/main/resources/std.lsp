@@ -14,7 +14,7 @@
     (defn print-one-arg [x]
         ((field-static :java.lang.System :out) :print x)
         x)
-    (def r (for-each print-one-arg xs))
+    (def r (for-each xs print-one-arg))
     ((field-static :java.lang.System :out) :println)
     r)
 
@@ -40,9 +40,8 @@
 
 (defn mapcar [f l]
     (def r [])
-    (for-each
-        (e => (r :add (f e)))
-        l)
+    (for e l
+        (r :add (f e)))
     r)
 
 
@@ -61,11 +60,9 @@
 
 (defn reduce [initial-value f l]
     (def acc initial-value)
-    (for-each
-        (x =>
-            (set acc
-                (f acc x)))
-        l)
+    (for e l
+        (set acc
+            (f acc e)))
     acc)
 
 
@@ -100,9 +97,8 @@
 (defn composite [...fs]
     (fn [value]
         (def r value)
-        (for-each
-            (f => (set r (f r)))
-            fs)
+        (for-each fs
+            (f => (set r (f r))))
         r))
 
 
@@ -164,20 +160,18 @@
 
 (defn remove-if [f l]
     (def r [])
-    (for-each
+    (for-each l
         (e =>
             (if (not (f e))
-                (r :add e)))
-        l)
+                (r :add e))))
     r)
 
 (defn remove-if-not [f l]
     (def r [])
-    (for-each
+    (for-each l
         (e =>
             (if (f e)
-                (r :add e)))
-        l)
+                (r :add e))))
     r)
 
 

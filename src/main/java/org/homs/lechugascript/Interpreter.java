@@ -171,10 +171,10 @@ public class Interpreter {
     final Func funcForEach = (tokenAt, ev, args) -> {
         Interpreter.FuncUtils.verifyArgumentsNumber(tokenAt, 2, null, args);
 
-        Object evaluatedFunc = ev.evalAst((Ast) args.get(0));
-        Func func = Interpreter.FuncUtils.validateNotNullType(tokenAt, Func.class, evaluatedFunc);
+        Iterable<?> it = Interpreter.FuncUtils.validateNotNullType(tokenAt, Iterable.class, ev.evalAst((Ast) args.get(0)));
 
-        Iterable<?> it = Interpreter.FuncUtils.validateNotNullType(tokenAt, Iterable.class, ev.evalAst((Ast) args.get(1)));
+        Object evaluatedFunc = ev.evalAst((Ast) args.get(1));
+        Func func = Interpreter.FuncUtils.validateNotNullType(tokenAt, Func.class, evaluatedFunc);
 
         Object r = null;
         int index = 0;
@@ -182,6 +182,29 @@ public class Interpreter {
             Evaluator ev2 = new Evaluator(ev);
             r = func.eval(tokenAt, ev2, Arrays.asList(o, index));
             index++;
+        }
+        return r;
+    };
+
+    //
+    // (for dog dogs
+    //      (println dog))
+    //
+    final Func funcFor = (tokenAt, ev, args) -> {
+        Interpreter.FuncUtils.verifyArgumentsNumber(tokenAt, 2, null, args);
+
+        SymbolAst elementName = FuncUtils.validateNotNullType(tokenAt, SymbolAst.class, args.get(0));
+        Iterable<?> it = Interpreter.FuncUtils.validateNotNullType(tokenAt, Iterable.class, ev.evalAst((Ast) args.get(1)));
+
+        Object r = null;
+        for (Object o : it) {
+            Evaluator ev2 = new Evaluator(ev);
+            ev2.getEnvironment().def(elementName.value, o);
+
+            for (int i = 2; i < args.size(); i++) {
+                Ast arg = (Ast) args.get(i);
+                r = ev2.evalAst(arg);
+            }
         }
         return r;
     };
@@ -331,6 +354,7 @@ public class Interpreter {
         register("if", true, funcIf);
         register("while", true, funcWhile);
         register("for-each", true, funcForEach);
+        register("for", true, funcFor);
 
         register("new", false, funcNew);
         //register("call", false, funcCall);

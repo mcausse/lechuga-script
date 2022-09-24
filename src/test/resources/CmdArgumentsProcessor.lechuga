@@ -34,9 +34,8 @@
 (def p (call-static :java.util.regex.Pattern :compile "--(.+?)=(.+?)"))
 
 (defn processArgs [args]
-    (for-each
-        (arg => (processArg arg))
-        args))
+    (for arg args
+        (processArg arg)))
 
 (defn processArg [arg]
     (if (arg :startsWith "--")

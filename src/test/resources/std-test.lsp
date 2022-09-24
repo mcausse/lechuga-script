@@ -168,9 +168,8 @@
 
     (defn str/join [separator ss]
         (def str-joiner (new :java.util.StringJoiner separator))
-        (for-each
-            (fn[s] (str-joiner :add (to-string s)))
-            ss)
+        (for-each ss
+            (fn[s] (str-joiner :add (to-string s))))
         (str-joiner :toString)
     )
     (assert/eq "a/b/c" (str/join "/" [:a :b :c]))
@@ -399,14 +398,13 @@
 
 (defn primos [n]
     (def r (seq 2 n))
-    (for-each
+    (for-each (seq 2 n)
         (fn [x]
             (set r
                 (remove-if
                     (fn [xx]
                         (and (> xx x) (= 0 (% xx x))))
-                    r)))
-        (seq 2 n))
+                    r))))
     r)
 
 (assert/eq [2 3 5 7] (primos 10))
@@ -511,10 +509,9 @@
     (assert/eq "01:02" (mins-to-hora 62))
     (assert/eq "02:03" (mins-to-hora 123))
 
-    (for-each
+    (for-each (seq 1 1000 12)
         (fn [n]
-            (assert/eq 123 (hora-to-mins (mins-to-hora 123))))
-        (seq 1 1000 12))
+            (assert/eq 123 (hora-to-mins (mins-to-hora 123)))))
 
 )
 

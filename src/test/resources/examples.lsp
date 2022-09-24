@@ -29,10 +29,9 @@
 
     (def m {[:one 1][:two 2][:three 3]})
     (def values-set [])
-    (for-each
+    (for-each (m :keySet)
         (fn [key]
-            (values-set :add (m :get key)))
-        (m :keySet))
+            (values-set :add (m :get key))))
 
     (assert/eq (new :java.util.ArrayList (m :values)) values-set)
 )

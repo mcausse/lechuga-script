@@ -186,14 +186,18 @@ public class InterpreterTest {
 
                 Arguments.of("(defn + [a b] (call-static :java.lang.Integer :sum a b)) (+ 2 3)", 5),
 
-                Arguments.of("(for-each (fn [x i] x) [])", null),
-                Arguments.of("(for-each (fn [x i] i) [])", null),
-                Arguments.of("(for-each (fn [x i] x) [:a])", "a"),
-                Arguments.of("(for-each (fn [x i] i) [:a])", 0),
-                Arguments.of("(for-each (fn [x i] x) [:a :b])", "b"),
-                Arguments.of("(for-each (fn [x i] i) [:a :b])", 1),
-                Arguments.of("(for-each (fn [x i] x) [:a :b :c])", "c"),
-                Arguments.of("(for-each (fn [x i] i) [:a :b :c])", 2),
+                Arguments.of("(for-each [] (fn [x i] x))", null),
+                Arguments.of("(for-each [] (fn [x i] i))", null),
+                Arguments.of("(for-each [:a] (fn [x i] x))", "a"),
+                Arguments.of("(for-each [:a](fn [x i] i))", 0),
+                Arguments.of("(for-each [:a :b] (fn [x i] x))", "b"),
+                Arguments.of("(for-each [:a :b] (fn [x i] i))", 1),
+                Arguments.of("(for-each [:a :b :c] (fn [x i] x))", "c"),
+                Arguments.of("(for-each [:a :b :c] (fn [x i] i))", 2),
+
+                Arguments.of("(def r 0) (for e [1 2 3] (set r (+ r e))(set r (+ r e)))", 6 * 2),
+                Arguments.of("(def r 0) (for e [1 2 3] (set r (+ r e)))", 6),
+                Arguments.of("(def r 0) (for e [] (set r (+ r e)))", null),
 
 
                 Arguments.of(
