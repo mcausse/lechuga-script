@@ -1,5 +1,13 @@
-<ul>
-    <% (for :dog dogs %>
-        <li><%= (dog :getName) %> - <%= (dog :getAge) %></li>
-    <% ) %>
-</ul>
+<html>
+<head>
+    <title><%= title %></title>
+</head>
+<body>
+    <h1><%= title %></h1>
+    <ul>
+        <% (for dog dogs %>
+        <li><%= (dog :getId) %> - <%= (dog :getName) %></li>
+        <% ) %>
+    </ul>
+</body>
+</html>

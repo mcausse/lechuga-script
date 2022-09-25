@@ -94,24 +94,4 @@ public class LechugaTemplateTranspilerTest {
         return r;
     }
 
-
-    public static class Dog {
-
-        public final long id;
-        public final String name;
-
-        public Dog(long id, String name) {
-            this.id = id;
-            this.name = name;
-        }
-
-        public long getId() {
-            return id;
-        }
-
-        public String getName() {
-            return name;
-        }
-    }
-
 }

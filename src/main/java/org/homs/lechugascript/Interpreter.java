@@ -21,6 +21,7 @@ import java.nio.charset.Charset;
 import java.util.*;
 import java.util.function.BiConsumer;
 
+// TODO trace: https://www2.cs.sfu.ca/CourseCentral/310/pwfong/Lisp/1/tutorial1.html
 public class Interpreter {
 
     public static final String STD_LSP = "std.lsp";

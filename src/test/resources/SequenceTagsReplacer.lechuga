@@ -65,27 +65,21 @@
                 (strb :append (text :substring pos))
                 (strb :toString))))
 
-    ;;
-    ;; A sublime function that is a composition of the currified form of the `replace-tags`.
-    ;; The composition covers all the available tag replacements.
-    ;;
-    (def replace-tags-composition
-        (composite
-            (replace-tags "{guid}" generateGUID)
-            (replace-tags "{timehash}" generateTimeHash)
-            (replace-tags "{currentpath}" generateCurrentPath)))
-
-    ;;
-    ;; Application of the `replace-tags-composition`.
-    ;;
-    (defn replaceTags [text]
-        (replace-tags-composition text))
-
-
-
     (multi
         (def i 0)
         (def generator (=> (set i (+ i 1))))
         (assert/eq
             "-1-2-3-"
             ((replace-tags "{tag}" generator) "-{tag}-{tag}-{tag}-")))
+
+    ;;
+    ;; A sublime function that is a composition of the currified form of the `replace-tags`.
+    ;; The composition covers all the available tag replacements.
+    ;;
+    (def replaceTags
+        (composite
+            (replace-tags "{guid}" generateGUID)
+            (replace-tags "{timehash}" generateTimeHash)
+            (replace-tags "{currentpath}" generateCurrentPath)))
+
+

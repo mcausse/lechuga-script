@@ -14,6 +14,13 @@ public class TextFileUtils {
         return new FileInputStream(f);
     }
 
+    public static String loadFileFromClasspath(String resourceFileName) {
+        ClassLoader loader = Thread.currentThread().getContextClassLoader();
+        InputStream is = loader.getResourceAsStream(resourceFileName);
+        var text = TextFileUtils.read(is, TextFileUtils.UTF8);
+        return text;
+    }
+
     public static String read(File f) {
         return read(f, UTF8);
     }

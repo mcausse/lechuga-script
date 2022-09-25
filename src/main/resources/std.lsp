@@ -221,7 +221,9 @@
 
 
 
-
+(defn c/for-each [f]
+    (fn [l]
+        (for-each l f)))
 
 
 
@@ -257,8 +259,6 @@
                     (to-string obtained)
                     ">"))
             (throw (new :org.homs.lechugascript.util.AssertionError message)))))
-
-
 
 
 
