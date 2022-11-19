@@ -61,7 +61,7 @@ public class ReflectUtils {
 
     public static Object callStaticMethod(String beanClassName, String methodName, Object[] args) {
         try {
-            Class<?> beanClass = Class.forName(beanClassName);
+            Class<?> beanClass = classOf(beanClassName);
             for (Method method : beanClass.getMethods()) {
                 if (method.getName().equals(methodName) && method.getParameterCount() == args.length) {
                     boolean typesMatches = true;
@@ -86,7 +86,7 @@ public class ReflectUtils {
 
     public static Object getStaticField(String className, String fieldName) {
         try {
-            Class<?> beanClass = Class.forName(className);
+            Class<?> beanClass = classOf(className);
             return beanClass.getField(fieldName).get(null);
         } catch (final Exception e) {
             throw new RuntimeException(e);
@@ -121,9 +121,17 @@ public class ReflectUtils {
     public static Object newInstance(final String beanClassName, final Object[] args) throws RuntimeException {
 
         try {
-            Class<?> beanClass = Class.forName(beanClassName);
+            Class<?> beanClass = classOf(beanClassName);
             return newInstance(beanClass, args);
         } catch (final Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static Class<?> classOf(String beanClassName) {
+        try {
+            return Class.forName(beanClassName);
+        } catch (ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
     }

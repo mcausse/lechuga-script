@@ -1,5 +1,6 @@
 package org.homs.lechugascript;
 
+import org.homs.lechugascript.binding.InterfaceBindingFactory;
 import org.homs.lechugascript.eval.Evaluator;
 import org.homs.lechugascript.eval.Func;
 import org.homs.lechugascript.parser.Parser;
@@ -68,6 +69,16 @@ public class Interpreter {
         }
         return r;
     };
+
+    final Func funcFunctionalInterface = (tokenAt, ev, args) -> {
+
+        String functionalInterfaceClassName = Interpreter.FuncUtils.validateNotNullType(tokenAt, String.class, args.get(0));
+        Func func = Interpreter.FuncUtils.validateNotNullType(tokenAt, Func.class, args.get(1));
+        Class<?> functionalInterfaceClass = ReflectUtils.classOf(functionalInterfaceClassName);
+
+        return InterfaceBindingFactory.buildFunctionalInterface(functionalInterfaceClass, ev, func);
+    };
+
 
     final Func funcQuote = (tokenAt, ev, args) -> {
         Interpreter.FuncUtils.verifyArgumentsNumber(tokenAt, 1, args);
@@ -361,6 +372,8 @@ public class Interpreter {
         //register("call", false, funcCall);
         register("call-static", false, funcCallStatic);
         register("field-static", false, funcFieldStatic);
+
+        register("new-functional-interface", false, funcFunctionalInterface);
 
         register("curry", false, funcCurry);
 

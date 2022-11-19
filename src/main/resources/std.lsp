@@ -18,6 +18,10 @@
     ((field-static :java.lang.System :out) :println)
     r)
 
+(defn printf [s ...args]
+    ((field-static :java.lang.System :out) :printf s (args :toArray))
+    s)
+
 (defn not [a]
     (if a
         false
