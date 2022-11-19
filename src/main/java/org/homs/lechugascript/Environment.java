@@ -32,7 +32,6 @@ public class Environment {
     public void set(String sym, Object value) {
         Environment e = find(sym);
         if (e == null) {
-            // this.variables.put(sym, value);
             throw new RuntimeException("undefined variable for 'set' operation: " + sym);
         } else {
             e.variables.put(sym, value);
@@ -56,7 +55,7 @@ public class Environment {
         if (parent == null) {
             return variables.toString();
         } else {
-            return variables.toString() + " => " + parent;
+            return parent + " => " + variables;
         }
     }
 
