@@ -95,6 +95,12 @@ public class InterpreterTest {
                 Arguments.of("(multi 1)", 1),
                 Arguments.of("(multi 1 2 3)", 3),
 
+                Arguments.of("(let {})", null),
+                Arguments.of("(let {}1)", 1),
+                Arguments.of("(let {}1 2 3)", 3),
+                Arguments.of("(let {[a 5]}a)", 5),
+                Arguments.of("(let {[a 2][b 3][c (+ a b)]}c)", 5),
+
                 Arguments.of("((quote null) :getClass)", NullAst.class),
                 Arguments.of("((quote true) :getClass)", BooleanAst.class),
                 Arguments.of("((quote 1) :getClass)", NumberAst.class),

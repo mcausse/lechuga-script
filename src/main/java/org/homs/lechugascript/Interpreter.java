@@ -4,10 +4,7 @@ import org.homs.lechugascript.binding.InterfaceBindingFactory;
 import org.homs.lechugascript.eval.Evaluator;
 import org.homs.lechugascript.eval.Func;
 import org.homs.lechugascript.parser.Parser;
-import org.homs.lechugascript.parser.ast.Ast;
-import org.homs.lechugascript.parser.ast.ListAst;
-import org.homs.lechugascript.parser.ast.ParenthesisAst;
-import org.homs.lechugascript.parser.ast.SymbolAst;
+import org.homs.lechugascript.parser.ast.*;
 import org.homs.lechugascript.tokenizer.EToken;
 import org.homs.lechugascript.tokenizer.Token;
 import org.homs.lechugascript.tokenizer.TokenAt;
@@ -27,6 +24,7 @@ public class Interpreter {
 
     public static final String STD_LSP = "std.lsp";
 
+    // TODO 0.0.3: deprecate "multi" in favor of  "let" ?
     static abstract class FuncUtils {
         public static void verifyArgumentsNumber(TokenAt tokenAt, int argumentsNumber, List<Object> args) {
             if (argumentsNumber != args.size()) {
@@ -68,6 +66,35 @@ public class Interpreter {
             r = ev2.evalAst((Ast) arg);
         }
         return r;
+    };
+
+    final Func funcLet = (tokenAt, ev, args) -> {
+
+        MapAst bindings = Interpreter.FuncUtils.validateNotNullType(tokenAt, MapAst.class, args.get(0));
+
+        Evaluator ev2 = new Evaluator(ev);
+
+        /*
+         * EVALUATE THE BINDINGS LIST
+         */
+        for (var binding : bindings.values.entrySet()) {
+            Ast key = binding.getKey();
+            Ast val = binding.getValue();
+
+            SymbolAst keySymbolAst = FuncUtils.validateNotNullType(key.getTokenAt(), SymbolAst.class, key);
+            Object value = ev2.evalAst(val);
+            ev2.getEnvironment().def(keySymbolAst.value, value);
+        }
+
+        /*
+         * EVALUATE THE BODY (LIST)
+         */
+        Object v = null;
+        for (int i = 1; i < args.size(); i++) {
+            v = ev2.evalAst((Ast) args.get(i));
+        }
+
+        return v;
     };
 
     final Func funcFunctionalInterface = (tokenAt, ev, args) -> {
@@ -352,6 +379,7 @@ public class Interpreter {
 
     {
         register("multi", true, funcMulti);
+        register("let", true, funcLet);
 
         register("quote", true, funcQuote);
 
