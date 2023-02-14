@@ -568,6 +568,23 @@
 
 
 
+(let {}
+    (assert/eq
+        true
+        (is-of-class? :java.lang.Object [1 2 3]))
+    (assert/eq
+        true
+        (is-of-class? :java.util.List [1 2 3]))
+    (assert/eq
+        true
+        (is-of-class? :java.util.ArrayList [1 2 3]))
+    (assert/eq
+        false
+        (is-of-class? :java.util.LinkedList [1 2 3]))
+)
+
+
+
 
 true
 

@@ -117,6 +117,7 @@ public class InterpreterTest {
 
                 Arguments.of("(if true :ok)", "ok"),
                 Arguments.of("(if false :ok)", null),
+                Arguments.of("(if true :ok :ko)", "ok"),
                 Arguments.of("(if false :ok :ko)", "ko"),
 
                 Arguments.of("(def r 1)(if true (def r 2) (def r 3)) r", 1),
@@ -360,4 +361,16 @@ public class InterpreterTest {
             }
         }
     }
+
+
+//    @Test
+//    void error_lt_int_double() throws Throwable {
+//
+//        Interpreter i = new Interpreter();
+//
+//        var env = i.getEnvironment();
+//        var asts = i.parse("(< 1 1.2)", "test");
+//        Object result = i.evaluate(asts, env);
+//
+//    }
 }

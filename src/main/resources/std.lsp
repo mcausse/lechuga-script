@@ -233,6 +233,9 @@
 
 
 
+(defn is-of-class? [className object]
+    (def class (call-static :org.homs.lechugascript.util.ReflectUtils :classOf className))
+    (class :isAssignableFrom (object :getClass)))
 
 
 

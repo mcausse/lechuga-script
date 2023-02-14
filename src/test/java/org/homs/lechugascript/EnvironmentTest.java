@@ -54,4 +54,14 @@ public class EnvironmentTest {
         assertThat(ex.getMessage()).isEqualTo("undefined variable for 'set' operation: pi");
     }
 
+    @Test
+    void double_def() {
+        Environment e = new Environment(null);
+        e.def("pi", 3);
+
+        e.def("pi", 3.14159);
+
+        double obtained = (double) e.get("pi");
+        assertThat(obtained).isEqualTo(3.14159);
+    }
 }
