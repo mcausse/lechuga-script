@@ -59,8 +59,7 @@
     (if (l :isEmpty)
         (throw (new :org.homs.lechugascript.util.ValidationError
                     "list/tail: the list is empty"))
-        (l :subList 1 (l :size))))
-
+        (new :java.util.ArrayList (l :subList 1 (l :size)))))
 
 (defn reduce [initial-value f l]
     (def acc initial-value)
