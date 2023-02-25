@@ -275,7 +275,8 @@ public class InterpreterTest {
         return Stream.of(
                 Arguments.of("std-test.lsp", true),
                 Arguments.of("examples.lsp", true),
-                Arguments.of("hores.lsp", true)
+                Arguments.of("hores.lsp", true),
+                Arguments.of("queens.lechuga", true)
         );
     }
 
@@ -283,28 +284,28 @@ public class InterpreterTest {
     @MethodSource("scriptsProvider")
     void testRunScript(String scriptName, Object expectedResult) throws Throwable {
 
-        // TODO coverage
-        final Map<String, Set<TokenAt>> coverajes = new TreeMap<>();
-        BiConsumer<Environment, Ast> coverajesListener = (env, ast) -> {
-            var tokenAt = ast.getTokenAt();
-            coverajes.putIfAbsent(tokenAt.sourceDesc, new TreeSet<>());
-            coverajes.get(tokenAt.sourceDesc).add(tokenAt);
-        };
+//        // TODO coverage
+//        final Map<String, Set<TokenAt>> coverajes = new TreeMap<>();
+//        BiConsumer<Environment, Ast> coverajesListener = (env, ast) -> {
+//            var tokenAt = ast.getTokenAt();
+//            coverajes.putIfAbsent(tokenAt.sourceDesc, new TreeSet<>());
+//            coverajes.get(tokenAt.sourceDesc).add(tokenAt);
+//        };
 
         Interpreter i = new Interpreter();
 
         var env = i.getStdEnvironment();
         var asts = i.parseFileFromClasspath(scriptName, StandardCharsets.UTF_8);
-        Object result = i.evaluate(asts, env, coverajesListener);
+        Object result = i.evaluate(asts, env/*, coverajesListener*/);
 
         assertThat(result).isEqualTo(expectedResult);
 
-        // TODO coverage
-        for (var source : coverajes.entrySet()) {
-            for (TokenAt line : source.getValue()) {
-                System.out.println(line);
-            }
-        }
+//        // TODO coverage
+//        for (var source : coverajes.entrySet()) {
+//            for (TokenAt line : source.getValue()) {
+//                System.out.println(line);
+//            }
+//        }
     }
 
     @Test

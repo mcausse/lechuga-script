@@ -18,6 +18,9 @@
     ((field-static :java.lang.System :out) :println)
     r)
 
+(defn print [s]
+    ((field-static :java.lang.System :out) :print s))
+
 (defn printf [s ...args]
     ((field-static :java.lang.System :out) :printf s (args :toArray))
     s)

@@ -375,6 +375,8 @@
     (assert/eq [0 2 4 6 8] (seq 0 10 2))
     (assert/eq [0 3 6 9] (seq 0 10 3))
     (assert/eq [0] (seq 0 10 100))
+
+    (assert/eq [0 1 2 3] (seq 0 4))
 )
 
 
