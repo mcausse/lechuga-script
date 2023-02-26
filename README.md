@@ -5,35 +5,19 @@
 ;;;
 ;;; n-queens.lechuga - the N-Queens problem solver.
 ;;;
-;;; This program is a N-Queens solver that displays the first encountered
-;;; solution and then continues exploring to count the total of solutions.
-;;;
-
-;;
-;; this is the counter of solutions found.
-;;
 (def num-solutions 0)
 
 ;;
 ;; Prints a human-readable board to the console.
 ;;
 (defn display-board [state]
-    (for i (seq 0 (state :size))
-        (for j (seq 0 (state :size))
+    (for i (seq (state :size))
+        (for j (seq (state :size))
             (print
                 (if (= (state :get i) j)
                     "Q "
                     "· ")))
         (println)))
-
-;;
-;; This function is called when a solution is found, increasing the counter
-;; of solutions, and if is the first solution, prints the board.
-;;
-(defn solution-found-handler [state]
-    (if (= num-solutions 0)
-        (display-board state))
-    (set num-solutions (+ num-solutions 1)))
 
 ;;
 ;; This function returns `true` if and only if the position row/col in the
@@ -48,13 +32,14 @@
                 (<> col (state :get i))
                 (<> (math/abs (- (state :get i) col))
                     (math/abs (- i row)))))
-        (set i (+ i 1)))
+        (inc i))
     r)
 
 ;;
-;; Recursive function to explore the solutions space.
+;; Recursive function to explore the solutions space. The `solution-found-handler`
+;; argument is the handler that consumes the solutions found.
 ;;
-(defn queen [n state row]
+(defn queen [solution-found-handler n state row]
     (if (= row n)
         (solution-found-handler state)
         (let {}
@@ -63,24 +48,57 @@
                 (if (is-safe? state row col)
                     (let {}
                         (state :set row col)
-                        (queen n state (+ row 1))))
-                (set col (+ col 1))))))
+                        (queen solution-found-handler n state (+ row 1))))
+                (inc col)))))
 
-;; 
-;; The N-Queens solver entry point. 
-;; 
+;;
+;; This is a solutions-found consumer, that displays the board of the first solution
+;; found, and then continues counting the solutions.
+;;
+(defn show-the-first-solution-found-handler [state]
+    (if (= num-solutions 0)
+        (display-board state))
+    (inc num-solutions))
+
+;;
+;; The N-Queens solver entry point.
+;;
 (defn n-queens [n]
     (println "RUNNING THE " n "-QUEENS")
-    (def state (seq 0 n))
+    (set num-solutions 0)
+    (def state (seq n))
     (state :set 0 -1)
-    (queen n state 0)
-    (println "FOUND " num-solutions " SOLUTIONS."))
+    (queen show-the-first-solution-found-handler n state 0)
+    (println "FOUND " num-solutions " SOLUTIONS.")
+    (println)
+    num-solutions)
 
-
-(n-queens 8)
+(assert/eq 4 (n-queens 6))
+(assert/eq 40 (n-queens 7))
+(assert/eq 92 (n-queens 8))
+(assert/eq 352 (n-queens 9))
 ```
 
 ```
+RUNNING THE 6-QUEENS
+· Q · · · · 
+· · · Q · · 
+· · · · · Q 
+Q · · · · · 
+· · Q · · · 
+· · · · Q · 
+FOUND 4 SOLUTIONS.
+
+RUNNING THE 7-QUEENS
+Q · · · · · · 
+· · Q · · · · 
+· · · · Q · · 
+· · · · · · Q 
+· Q · · · · · 
+· · · Q · · · 
+· · · · · Q · 
+FOUND 40 SOLUTIONS.
+
 RUNNING THE 8-QUEENS
 Q · · · · · · · 
 · · · · Q · · · 
@@ -91,6 +109,19 @@ Q · · · · · · ·
 · Q · · · · · · 
 · · · Q · · · · 
 FOUND 92 SOLUTIONS.
+
+RUNNING THE 9-QUEENS
+Q · · · · · · · · 
+· · Q · · · · · · 
+· · · · · Q · · · 
+· · · · · · · Q · 
+· Q · · · · · · · 
+· · · Q · · · · · 
+· · · · · · · · Q 
+· · · · · · Q · · 
+· · · · Q · · · · 
+FOUND 352 SOLUTIONS.
+
 ```
 
 

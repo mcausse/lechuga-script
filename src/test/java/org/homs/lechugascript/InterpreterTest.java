@@ -1,7 +1,6 @@
 package org.homs.lechugascript;
 
 import org.homs.lechugascript.parser.ast.*;
-import org.homs.lechugascript.tokenizer.TokenAt;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -9,7 +8,6 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 import java.nio.charset.StandardCharsets;
 import java.util.*;
-import java.util.function.BiConsumer;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -100,6 +98,16 @@ public class InterpreterTest {
                 Arguments.of("(let {}1 2 3)", 3),
                 Arguments.of("(let {[a 5]}a)", 5),
                 Arguments.of("(let {[a 2][b 3][c (+ a b)]}c)", 5),
+
+                Arguments.of("(inc 2)", 3),
+                Arguments.of("(inc (+ 1 1))", 3),
+                Arguments.of("(def a 2)(inc a)", 3),
+                Arguments.of("(def a 2)(inc a)a", 3),
+
+                Arguments.of("(dec 2)", 1),
+                Arguments.of("(dec (+ 1 1))", 1),
+                Arguments.of("(def a 2)(dec a)", 1),
+                Arguments.of("(def a 2)(dec a)a", 1),
 
                 Arguments.of("((quote null) :getClass)", NullAst.class),
                 Arguments.of("((quote true) :getClass)", BooleanAst.class),
@@ -276,7 +284,7 @@ public class InterpreterTest {
                 Arguments.of("std-test.lsp", true),
                 Arguments.of("examples.lsp", true),
                 Arguments.of("hores.lsp", true),
-                Arguments.of("queens.lechuga", true)
+                Arguments.of("n-queens.lechuga", true)
         );
     }
 

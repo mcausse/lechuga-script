@@ -144,8 +144,6 @@
 	(call-static :org.homs.lechugascript.util.ComparableUtils :ne a b))
 
 
-(defn dec [x]  (- x 1))
-(defn inc [x]  (+ x 1))
 
 
 
@@ -154,7 +152,7 @@
 
 
 
-(defn seq [min max step?]
+(defn range [min max step?]
     (if (is-null? step)
         (set step 1))
     (def r [])
@@ -163,6 +161,9 @@
         (r :add n)
         (set n (+ n step)))
     r)
+
+(defn seq [to step?]
+    (range 0 to step))
 
 (defn remove-if [f l]
     (def r [])

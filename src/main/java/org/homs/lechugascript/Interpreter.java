@@ -16,6 +16,7 @@ import org.homs.lechugascript.util.TextFileUtils;
 import java.io.File;
 import java.io.InputStream;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.function.BiConsumer;
 
@@ -58,6 +59,46 @@ public class Interpreter {
             return (T) value;
         }
     }
+
+    // TODO experimental
+    final Func funcImport = (tokenAt, ev, args) -> {
+        FuncUtils.verifyArgumentsNumber(tokenAt, 1, 1, args);
+        String fileName = FuncUtils.validateNotNullType(tokenAt, String.class, args.get(0));
+
+        var i = new Interpreter();
+        var asts = i.parseFile(fileName, StandardCharsets.UTF_8);
+        return i.evaluate(asts, ev.getEnvironment());
+    };
+
+    final Func funcInc = (tokenAt, ev, args) -> {
+        FuncUtils.verifyArgumentsNumber(tokenAt, 1, 1, args);
+
+        FuncUtils.validateNotNullType(tokenAt, Ast.class, args.get(0));
+        final Number vv = FuncUtils.validateNotNullType(tokenAt, Number.class, ev.evalAst((Ast) args.get(0)));
+
+        Number vv2 = (Number) ArithmeticFuncs.funcAdd.eval(tokenAt, ev, Arrays.asList(vv, 1));
+
+        if (args.get(0) instanceof SymbolAst) {
+            String varname = ((SymbolAst) args.get(0)).value;
+            ev.getEnvironment().set(varname, vv2);
+        }
+        return vv2;
+    };
+
+    final Func funcDec = (tokenAt, ev, args) -> {
+        FuncUtils.verifyArgumentsNumber(tokenAt, 1, 1, args);
+
+        FuncUtils.validateNotNullType(tokenAt, Ast.class, args.get(0));
+        final Number vv = FuncUtils.validateNotNullType(tokenAt, Number.class, ev.evalAst((Ast) args.get(0)));
+
+        Number vv2 = (Number) ArithmeticFuncs.funcSub.eval(tokenAt, ev, Arrays.asList(vv, 1));
+
+        if (args.get(0) instanceof SymbolAst) {
+            String varname = ((SymbolAst) args.get(0)).value;
+            ev.getEnvironment().set(varname, vv2);
+        }
+        return vv2;
+    };
 
     final Func funcMulti = (tokenAt, ev, args) -> {
         Evaluator ev2 = new Evaluator(ev);
@@ -410,12 +451,17 @@ public class Interpreter {
 
         register("is-null?", false, funcIsNull);
 
+        register("import", false, funcImport);
+
 
         register("+", false, ArithmeticFuncs.funcAdd);
         register("-", false, ArithmeticFuncs.funcSub);
         register("*", false, ArithmeticFuncs.funcMul);
         register("/", false, ArithmeticFuncs.funcDiv);
         register("%", false, ArithmeticFuncs.funcMod);
+
+        register("inc", true, funcInc);
+        register("dec", true, funcDec);
 
         register("to-byte", false, ArithmeticFuncs.funcToByte);
         register("to-short", false, ArithmeticFuncs.funcToShort);

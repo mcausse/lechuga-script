@@ -355,8 +355,8 @@
 (assert/eq 0 (% 2 2))
 (assert/eq 1 (% 3 2))
 
-(assert/eq 3 (dec 4))
-(assert/eq 5 (inc 4))
+;; (assert/eq 3 (dec 4))
+;; (assert/eq 5 (inc 4))
 
 
 
@@ -366,17 +366,22 @@
 
 
 (multi
-    (assert/eq [] (seq 2 0))
-    (assert/eq [] (seq 2 2))
-    (assert/eq [2] (seq 2 3))
-    (assert/eq [2 3] (seq 2 4))
-    (assert/eq [2 3 4] (seq 2 5))
+    (assert/eq [] (range 2 0))
+    (assert/eq [] (range 2 2))
+    (assert/eq [2] (range 2 3))
+    (assert/eq [2 3] (range 2 4))
+    (assert/eq [2 3 4] (range 2 5))
 
-    (assert/eq [0 2 4 6 8] (seq 0 10 2))
-    (assert/eq [0 3 6 9] (seq 0 10 3))
-    (assert/eq [0] (seq 0 10 100))
+    (assert/eq [0 2 4 6 8] (range 0 10 2))
+    (assert/eq [0 3 6 9] (range 0 10 3))
+    (assert/eq [0] (range 0 10 100))
 
-    (assert/eq [0 1 2 3] (seq 0 4))
+    (assert/eq [0 1 2 3] (range 0 4))
+
+    (assert/eq [] (seq 0))
+    (assert/eq [0 1 2 3] (seq 4))
+    (assert/eq [0 1 2 3] (seq 4 1))
+    (assert/eq [0 2] (seq 4 2))
 )
 
 
@@ -399,8 +404,8 @@
 
 
 (defn primos [n]
-    (def r (seq 2 n))
-    (for-each (seq 2 n)
+    (def r (range 2 n))
+    (for-each (range 2 n)
         (fn [x]
             (set r
                 (remove-if
@@ -424,7 +429,7 @@
 
     (def k
         (composite
-            (c/mapcar inc)
+            (c/mapcar (fn [x](+ x 1)))
             (c/reduce "" concat)))
 
     (assert/eq "" (k []))
@@ -432,7 +437,7 @@
 
     (def k
         (composite
-            (c/mapcar dec)
+            (c/mapcar (fn[x](- x 1)))
             (c/reduce 0 +)))
 
     (assert/eq 0 (k []))
@@ -484,7 +489,7 @@
     (defn hora-to-mins [hora]
         (def sep-index (hora :indexOf ":"))
         (def hores (to-int (hora :substring 0 sep-index)))
-        (def mins (to-int (hora :substring (inc sep-index) (hora :length))))
+        (def mins (to-int (hora :substring (+ sep-index 1) (hora :length))))
         (+ (* hores 60) mins)
     )
 
@@ -511,7 +516,7 @@
     (assert/eq "01:02" (mins-to-hora 62))
     (assert/eq "02:03" (mins-to-hora 123))
 
-    (for-each (seq 1 1000 12)
+    (for-each (range 1 1000 12)
         (fn [n]
             (assert/eq 123 (hora-to-mins (mins-to-hora 123)))))
 
