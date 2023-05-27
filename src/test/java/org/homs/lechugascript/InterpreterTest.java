@@ -382,4 +382,18 @@ public class InterpreterTest {
 //        Object result = i.evaluate(asts, env);
 //
 //    }
+
+//    (assert/eq "{1=one}"    (to-string (fn [a] 1)))
+//            (assert/eq "{1=one}"    (to-string (a => 2)))
+
+//        @Test
+//    void error_lt_int_double() throws Throwable {
+//        Interpreter i = new Interpreter();
+//        var env = i.getEnvironment();
+//        var asts = i.parse("((quote (fn [a] (* a 2))) :toString)", "test");
+//
+//        Object result = i.evaluate(asts, env);
+//
+//        assertThat(result).isEqualTo("");
+//    }
 }

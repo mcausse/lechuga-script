@@ -52,6 +52,9 @@
 (assert/eq "[1, 2, 3]"  (to-string [1 2 3]))
 (assert/eq "{1=one}"    (to-string {[1 :one]}))
 
+(assert/eq "(fn [a] (* a 2))"    (to-string (quote (fn [a] (* a 2)))))
+(assert/eq "(fn [a] (* a 2))"    (to-string (quote (a => (* a 2)))))
+
 (assert/eq "" (concat))
 (assert/eq "null" (concat null))
 (assert/eq "a" (concat :a))
@@ -593,5 +596,40 @@
 
 
 
-true
 
+;;
+;; AssertL: (assert-that (+ 2 3) (is-equal-to? 5))
+;;
+
+(defn assert-that [obtained ...expectations]
+    (for expectation expectations
+        (expectation obtained)))
+
+(def is-equal-to?
+    (expected => (obtained =>
+            (assert/eq expected obtained))))
+
+
+
+(try-catch
+    (let {}
+        (assert-that (+ 2 3) (is-equal-to? 6))
+    )
+    :org.homs.lechugascript.util.AssertionError
+    (fn [e at]
+        (assert-that (e :getMessage) (is-equal-to? "obtained java.lang.Integer<5>; expected java.lang.Integer<6>"))
+    ))
+
+
+
+
+
+
+
+
+
+
+
+
+
+true

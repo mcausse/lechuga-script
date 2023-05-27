@@ -248,15 +248,28 @@
 
 (defn assert/eq [expected obtained]
     (if (not (equals? expected obtained))
-        (multi
-            (def message
-                (concat
-                    "assert/eq: expected <"
-                    (to-string expected)
-                    ">, but obtained <"
-                    (to-string obtained)
-                    ">"))
-            (throw (new :org.homs.lechugascript.util.AssertionError message)))))
+        (assert/fail (concat
+            "obtained "
+             ((obtained :getClass) :getName)
+             "<"
+             (to-string obtained)
+             ">; expected "
+             ((expected :getClass) :getName)
+             "<"
+             (to-string expected)
+             ">"
+        ))))
+
+;;        (multi
+;;            (def message
+;;                (concat
+;;                    "assert/eq: expected <"
+;;                    (to-string expected)
+;;                    ">, but obtained <"
+;;                    (to-string obtained)
+;;                    ">"))
+;;            (throw (new :org.homs.lechugascript.util.AssertionError message))))
+
 
 (defn assert/ne [expected obtained]
     (if (equals? expected obtained)
