@@ -438,7 +438,7 @@
     (assert/eq "" (k []))
     (assert/eq "23456" (k [1 2 3 4 5]))
 
-    (def k
+    (set k
         (composite
             (c/mapcar (fn[x](- x 1)))
             (c/reduce 0 +)))
@@ -476,7 +476,7 @@
 
     (assert/eq "-faria-negra-blanca-gossa" (composition dogs-list))
 
-    (def composition
+    (set composition
         (defn is-odd? [x] (<> 0 (% x 2)))
         (composite
             (c/remove-if is-odd?)
@@ -606,7 +606,8 @@
         (expectation obtained)))
 
 (def is-equal-to?
-    (expected => (obtained =>
+    (expected =>
+        (obtained =>
             (assert/eq expected obtained))))
 
 
@@ -619,14 +620,6 @@
     (fn [e at]
         (assert-that (e :getMessage) (is-equal-to? "obtained java.lang.Integer<5>; expected java.lang.Integer<6>"))
     ))
-
-
-
-
-
-
-
-
 
 
 

@@ -26,9 +26,9 @@ public class Environment {
     }
 
     public void def(String sym, Object value) {
-//        if (this.variables.containsKey(sym)) {
-//            throw new RuntimeException("yet defined variable: '" + sym + "'; use set");
-//        }
+        if (this.variables.containsKey(sym)) {
+            throw new RuntimeException("yet defined variable: '" + sym + "'; use set");
+        }
         this.variables.put(sym, value);
     }
 

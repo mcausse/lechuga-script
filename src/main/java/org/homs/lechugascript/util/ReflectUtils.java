@@ -31,7 +31,6 @@ public class ReflectUtils {
     }
 
     public static Object callMethod(Object target, String methodName, final Object[] args) throws RuntimeException {
-
         try {
             Class<?> targetClass = target.getClass();
             for (Method method : targetClass.getMethods()) {
@@ -52,8 +51,7 @@ public class ReflectUtils {
                     }
                 }
             }
-            throw new RuntimeException(
-                    "no method found for: " + targetClass.getName() + "#" + methodName + Arrays.toString(args));
+            throw new RuntimeException("no method found for: " + targetClass.getName() + "#" + methodName + Arrays.toString(args));
         } catch (final Exception e) {
             throw new RuntimeException(e);
         }
@@ -77,8 +75,7 @@ public class ReflectUtils {
                     }
                 }
             }
-            throw new RuntimeException(
-                    "no method found for: " + beanClassName + "#" + methodName + Arrays.toString(args));
+            throw new RuntimeException("no method found for: " + beanClassName + "#" + methodName + Arrays.toString(args));
         } catch (final Exception e) {
             throw new RuntimeException(e);
         }
@@ -94,7 +91,6 @@ public class ReflectUtils {
     }
 
     public static Object newInstance(final Class<?> beanClass, final Object[] args) throws RuntimeException {
-
         try {
             for (Constructor<?> ctor : beanClass.getConstructors()) {
                 if (ctor.getParameterCount() == args.length) {
@@ -111,15 +107,13 @@ public class ReflectUtils {
                     }
                 }
             }
-            throw new RuntimeException(
-                    "no constructor found for: " + beanClass.getName() + "#" + Arrays.toString(args));
+            throw new RuntimeException("no constructor found for: " + beanClass.getName() + "#" + Arrays.toString(args));
         } catch (final Exception e) {
             throw new RuntimeException(e);
         }
     }
 
     public static Object newInstance(final String beanClassName, final Object[] args) throws RuntimeException {
-
         try {
             Class<?> beanClass = classOf(beanClassName);
             return newInstance(beanClass, args);

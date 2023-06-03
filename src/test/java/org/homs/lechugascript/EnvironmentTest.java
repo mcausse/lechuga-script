@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class EnvironmentTest {
 
@@ -59,9 +60,12 @@ public class EnvironmentTest {
         Environment e = new Environment(null);
         e.def("pi", 3);
 
-        e.def("pi", 3.14159);
+        try {
+            e.def("pi", 3.14159);
 
-        double obtained = (double) e.get("pi");
-        assertThat(obtained).isEqualTo(3.14159);
+            fail("");
+        } catch (Exception ex) {
+            assertThat(ex.getMessage()).isEqualTo("yet defined variable: 'pi'; use set");
+        }
     }
 }

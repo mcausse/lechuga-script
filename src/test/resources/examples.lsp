@@ -19,7 +19,7 @@
     ;;
     ;;
     ;;
-    (def c/add
+    (set c/add
         (curry add))
     (assert/eq 5 ((c/add 2) 3))
 )
@@ -130,7 +130,7 @@
         (fn [b]
             (+ a b)))
 
-    (def c/add
+    (set c/add
         (a => (b => (+ a b))))
 
     ;;
@@ -203,7 +203,9 @@
     (assert/eq 3 (isqrt 15))
     (assert/eq 4 (isqrt 16))
     (assert/eq 4 (isqrt 17))
+)
 
+(multi
 
     ;; =============================
     ;; k(i) = i * i
@@ -244,6 +246,8 @@
     (assert/eq 4 (isqrt 16))
     (assert/eq 4 (isqrt 17))
 )
+
+
 
 
 true
