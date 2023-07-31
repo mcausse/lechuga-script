@@ -14,20 +14,14 @@ import java.util.Map;
 
 public class LechugaInterfaceProxifier {
 
-    /**
-     * Binds the methods of an interface with the methods defined in a LechugaScript file.
-     *
-     * @param interfaceClass the interface class with the methods to bind.
-     * @param <T>            the generic type of the interface.
-     * @return a dynamic proxy
-     * @throws Throwable if a runtime issue occurs when evaluating the LechugaScript code.
-     */
     public static <T> T build(Class<T> interfaceClass) throws Throwable {
 
         final var interpreter = new Interpreter();
         final var env = new Environment(interpreter.getStdEnvironment());
 
-
+        /*
+         * parse all @Lechuga-annotated methods of the interface
+         */
         Map<Method, List<Ast>> lechugaMethodsMap = new LinkedHashMap<>();
         for (var method : interfaceClass.getMethods()) {
             if (method.isAnnotationPresent(Lechuga.class)) {
@@ -38,32 +32,43 @@ public class LechugaInterfaceProxifier {
         }
 
         var r = Proxy.newProxyInstance(
-                interfaceClass.getClassLoader(),
+                Thread.currentThread().getContextClassLoader(),
                 new Class[]{interfaceClass},
-                new InvocationHandler() {
-
-                    @Override
-                    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-                        if (!lechugaMethodsMap.containsKey(method)) {
-                            throw new RuntimeException("in method: " + method + "; annotation not found: " + Lechuga.class);
-                        }
-
-                        var env2 = new Environment(env);
-                        for (int i = 0; i < method.getParameterCount(); i++) {
-                            Parameter param = method.getParameters()[i];
-                            if (param.isAnnotationPresent(LechugaArg.class)) {
-                                String argName = param.getAnnotation(LechugaArg.class).value();
-                                Object argValue = args[i];
-                                env2.def(argName, argValue);
-                            }
-                        }
-
-                        return interpreter.evaluate(lechugaMethodsMap.get(method), env2);
-                    }
-
-                }
+                new LechugaInvocationHandler(interpreter, lechugaMethodsMap, env)
         );
         return (T) r;
+    }
+
+    static class LechugaInvocationHandler implements InvocationHandler {
+
+        final Interpreter interpreter;
+        final Map<Method, List<Ast>> lechugaMethodsMap;
+        final Environment baseEnvironment;
+
+        public LechugaInvocationHandler(Interpreter interpreter, Map<Method, List<Ast>> lechugaMethodsMap, Environment baseEnvironment) {
+            this.interpreter = interpreter;
+            this.lechugaMethodsMap = lechugaMethodsMap;
+            this.baseEnvironment = baseEnvironment;
+        }
+
+        @Override
+        public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+            if (!lechugaMethodsMap.containsKey(method)) {
+                throw new RuntimeException("in method: " + method + "; annotation not found: " + Lechuga.class);
+            }
+
+            var invocationEnv = new Environment(baseEnvironment);
+            for (int i = 0; i < method.getParameterCount(); i++) {
+                Parameter param = method.getParameters()[i];
+                if (param.isAnnotationPresent(LechugaArg.class)) {
+                    String argName = param.getAnnotation(LechugaArg.class).value();
+                    Object argValue = args[i];
+                    invocationEnv.def(argName, argValue);
+                }
+            }
+
+            return interpreter.evaluate(lechugaMethodsMap.get(method), invocationEnv);
+        }
     }
 
 }
