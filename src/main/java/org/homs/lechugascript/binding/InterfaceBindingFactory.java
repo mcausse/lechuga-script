@@ -17,7 +17,7 @@ import java.util.List;
 public class InterfaceBindingFactory {
 
     /**
-     * Binds the methods of an interface with the methods defioned on a LechugaScript file.
+     * Binds the methods of an interface with the methods defined in a LechugaScript file.
      *
      * @param interfaceClass the interface class with the methods to bind.
      * @param <T>            the generic type of the interface.
