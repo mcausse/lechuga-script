@@ -470,9 +470,9 @@
 
     (def composition
         (composite
-            (c/remove-if (fn [dog] (equals? (dog :getName) :din)))
-            (c/mapcar (fn [dog] (dog :getName)))
-            (c/reduce "" (fn [a e] (concat a "-" e)))))
+            (c/remove-if (dog => (equals? (dog :getName) :din)))
+            (c/mapcar (dog => (dog :getName)))
+            (c/reduce "" (a e => (concat a "-" e)))))
 
     (assert/eq "-faria-negra-blanca-gossa" (composition dogs-list))
 
@@ -625,3 +625,23 @@
 
 
 true
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
