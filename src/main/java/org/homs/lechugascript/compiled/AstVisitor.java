@@ -109,6 +109,7 @@ public class AstVisitor {
     }
 
     public String onVisitParenthesis(ParenthesisAst ast) {
+        s.appendl("// " + ast);
 
         final String operator;
         if (ast.operator instanceof ParenthesisAst) {
@@ -120,15 +121,49 @@ public class AstVisitor {
         switch (operator) {
             case "def":
                 return visitDef(ast);
+            case "set":
+                return visitSet(ast);
             case "fn":
                 return visitFn(ast);
-            case "to-double":
-                return visitToDouble(ast);
+            case "if":
+                return visitIf(ast);
+            case "while":
+                return visitWhile(ast);
+
             case "+":
-                return visitAdd(ast);
+                return visitJRuntimeInvocation(ast, "add");
+            case "-":
+                return visitJRuntimeInvocation(ast, "sub");
+            case "*":
+                return visitJRuntimeInvocation(ast, "mul");
+            case "/":
+                return visitJRuntimeInvocation(ast, "div");
+            case "%":
+                return visitJRuntimeInvocation(ast, "mod");
+            case "neg":
+                return visitJRuntimeInvocation(ast, "neg");
+
+            case "=":
+                return visitJRuntimeInvocation(ast, "eq");
+            case "<>":
+                return visitJRuntimeInvocation(ast, "ne");
+            case ">":
+                return visitJRuntimeInvocation(ast, "gt");
+            case "<":
+                return visitJRuntimeInvocation(ast, "lt");
+            case ">=":
+                return visitJRuntimeInvocation(ast, "ge");
+            case "<=":
+                return visitJRuntimeInvocation(ast, "le");
+
+            case "and":
+                return visitJRuntimeInvocation(ast, "and");
+            case "or":
+                return visitJRuntimeInvocation(ast, "or");
+            case "not":
+                return visitJRuntimeInvocation(ast, "not");
         }
 
-        s.appendl("// " + ast);
         String r = getNextVar();
         List<String> varArgumentNames = ast.arguments.stream().map(this::visit).collect(Collectors.toList());
         s.appendl("final var " + r + " = ((" + Closure.class.getName() + ") " + operator + ").apply(" + String.join(", ", varArgumentNames) + ");");
@@ -136,10 +171,62 @@ public class AstVisitor {
 
     }
 
-    private String visitAdd(ParenthesisAst ast) {
+    private String visitIf(ParenthesisAst ast) {
+        s.appendl("// " + ast.toString());
+        Ast condition = ast.arguments.get(0);
+        Ast thenBody = ast.arguments.get(1);
+
+        Ast elseBody = null;
+        if (ast.arguments.size() > 2) {
+            elseBody = ast.arguments.get(2);
+        }
+
+        var ifResultVarName = getNextVar();
+        s.appendl("Object " + ifResultVarName + " = null;");
+
+        var conditionResultVarName = visit(condition);
+        s.appendl("if (" + conditionResultVarName + ") {");
+        s.incLevel();
+        var thenResultVarname = visit(thenBody);
+        s.appendl(ifResultVarName + " = " + thenResultVarname + ";");
+        s.decLevel();
+        s.appendl("}");
+
+        if (elseBody != null) {
+            s.appendl("else {");
+            s.incLevel();
+            var elseResultVarname = visit(elseBody);
+            s.appendl(ifResultVarName + " = " + elseResultVarname + ";");
+            s.decLevel();
+            s.appendl("}");
+        }
+        return ifResultVarName;
+    }
+
+    private String visitWhile(ParenthesisAst ast) {
+        s.appendl("// " + ast.toString());
+        Ast condition = ast.arguments.get(0);
+        Ast thenBody = ast.arguments.get(1);
+
+        var ifResultVarName = getNextVar();
+        s.appendl("Object " + ifResultVarName + " = null;");
+
+        s.appendl("while (true) {");
+        s.incLevel();
+        var conditionResultVarName = visit(condition);
+        s.appendl("if (!" + conditionResultVarName + ") {break;}");
+        var thenResultVarname = visit(thenBody);
+        s.appendl(ifResultVarName + " = " + thenResultVarname + ";");
+        s.decLevel();
+        s.appendl("}");
+
+        return ifResultVarName;
+    }
+
+    private String visitJRuntimeInvocation(ParenthesisAst ast, String methodName) {
         List<String> varArgumentNames = ast.arguments.stream().map(this::visit).collect(Collectors.toList());
         String resultVarName = getNextVar();
-        s.appendl("final var " + resultVarName + " = " + JRuntime.class.getName() + ".add(" + String.join(", ", varArgumentNames) + ");");
+        s.appendl("final var " + resultVarName + " = " + JRuntime.class.getName() + "." + methodName + "(" + String.join(", ", varArgumentNames) + ");");
         return resultVarName;
     }
 
@@ -157,16 +244,26 @@ public class AstVisitor {
             resultVarName = visit(bodyAst);
         }
 
-        s.appendl("var " + varName + " = " + resultVarName + ";");
+        s.appendl("Object " + varName + " = " + resultVarName + ";");
         return varName;
     }
 
-    private String visitToDouble(ParenthesisAst ast) {
+    private String visitSet(ParenthesisAst ast) {
         s.appendl("// " + ast.toString());
-        Ast value = ast.arguments.get(0);
-        String r = getNextVar();
-        s.appendl("Double " + r + " = org.homs.lechugascript.compiled.JRuntime.toDouble(" + value + ");");
-        return r;
+        String varName = ast.arguments.get(0).toString();
+
+        List<Ast> bodies = ast.arguments.subList(1, ast.arguments.size());
+        if (bodies.isEmpty()) {
+            throw new RuntimeException();
+        }
+
+        String resultVarName = "null";
+        for (var bodyAst : bodies) {
+            resultVarName = visit(bodyAst);
+        }
+
+        s.appendl(varName + " = " + resultVarName + ";");
+        return varName;
     }
 
     private String visitFn(ParenthesisAst ast) {

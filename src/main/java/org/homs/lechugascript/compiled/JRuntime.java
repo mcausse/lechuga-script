@@ -196,17 +196,29 @@ public class JRuntime {
     }
 
     public static Object add(Object... os) {
-        Object r = null;
-        int i = 0;
-        for (Object o : os) {
-            if (i == 0) {
-                r = os[0];
-            } else {
-                r = add(r, o);
-            }
-            i++;
-        }
-        return r;
+//        Object r = null;
+//        int i = 0;
+//        for (Object o : os) {
+//            if (i == 0) {
+//                r = os[0];
+//            } else {
+//                r = add(r, o);
+//            }
+//            i++;
+//        }
+//        return r;
+
+        return Arrays.stream(os).reduce(JRuntime::add).orElseThrow();
+    }
+    public static Object sub(Object... os) {
+        return Arrays.stream(os).reduce(JRuntime::sub).orElseThrow();
+    }
+
+    public static Object mul(Object... os) {
+        return Arrays.stream(os).reduce(JRuntime::mul).orElseThrow();
+    }
+    public static Object div(Object... os) {
+        return Arrays.stream(os).reduce(JRuntime::div).orElseThrow();
     }
 
     public static Object add(Object o1, Object o2) {
@@ -360,6 +372,25 @@ public class JRuntime {
         }
     }
 
+//    public static Object gt(Object... os) {
+//        return Arrays.stream(os).reduce(JRuntime::gt).orElseThrow();
+//    }
+//    public static Object lt(Object... os) {
+//        return Arrays.stream(os).reduce(JRuntime::lt).orElseThrow();
+//    }
+//    public static Object ge(Object... os) {
+//        return Arrays.stream(os).reduce(JRuntime::ge).orElseThrow();
+//    }
+//    public static Object le(Object... os) {
+//        return Arrays.stream(os).reduce(JRuntime::le).orElseThrow();
+//    }
+//    public static Object eq(Object... os) {
+//        return Arrays.stream(os).reduce(JRuntime::eq).orElseThrow();
+//    }
+//    public static Object ne(Object... os) {
+//        return Arrays.stream(os).reduce(JRuntime::ne).orElseThrow();
+//    }
+
     public static Boolean gt(Object o1, Object o2) {
 
         try {
@@ -477,7 +508,7 @@ public class JRuntime {
     }
 
     static boolean safeEquals(Object x, Object y) {
-        return x == y || x != null && x.equals(y);
+        return Objects.equals(x, y);
     }
 
     public static Boolean eq(Object o1, Object o2) {
@@ -494,6 +525,14 @@ public class JRuntime {
         }
         return (Boolean) o;
     }
+
+    public static Object and(Object... os) {
+        return Arrays.stream(os).reduce(JRuntime::and).orElseThrow();
+    }
+    public static Object or(Object... os) {
+        return Arrays.stream(os).reduce(JRuntime::or).orElseThrow();
+    }
+
 
     public static Boolean and(Object o1, Object o2) {
         Boolean b1 = getBoolean(o1);

@@ -50,7 +50,19 @@ class CompilerTest {
                 Arguments.of("DirectFnCurry", "(((fn [a] (fn [b] (+ a b)))  2) 3)", 5),
                 Arguments.of("CurryDef", "(def sum (fn [a] (fn [b] (+ a b))))   ((sum 2) 3)", 5),
 
-                Arguments.of("FunctionPass", "(def apply (fn [f a b] (f a b)))   (apply (a b => (+ a b)) 2 3)", 5)
+                Arguments.of("FunctionPass", "(def apply (fn [f a b] (f a b)))   (apply (a b => (+ a b)) 2 3)", 5),
+
+//                Arguments.of("equals", "(= 23 23 23)", true),
+                Arguments.of("SimpleLogic", "(and true true (or false false (= 23 23)))", true),
+
+
+                Arguments.of("If0", "(if (= 2 2) 3)", 3),
+                Arguments.of("If1", "(if (<> 2 2) 3)", null),
+                Arguments.of("If2", "(if (= 2 2) 3 4)", 3),
+                Arguments.of("If3", "(if (<> 2 2) 3 4)", 4),
+                Arguments.of("If4", "(def jou (if (= 2 2) 3 4)) jou", 3),
+
+                Arguments.of("While1", "(def i 0)(while (< i 5) (set i (+ i 1)))", 5)
         );
     }
 
