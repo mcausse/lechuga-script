@@ -210,6 +210,7 @@ public class JRuntime {
 
         return Arrays.stream(os).reduce(JRuntime::add).orElseThrow();
     }
+
     public static Object sub(Object... os) {
         return Arrays.stream(os).reduce(JRuntime::sub).orElseThrow();
     }
@@ -217,6 +218,7 @@ public class JRuntime {
     public static Object mul(Object... os) {
         return Arrays.stream(os).reduce(JRuntime::mul).orElseThrow();
     }
+
     public static Object div(Object... os) {
         return Arrays.stream(os).reduce(JRuntime::div).orElseThrow();
     }
@@ -529,6 +531,7 @@ public class JRuntime {
     public static Object and(Object... os) {
         return Arrays.stream(os).reduce(JRuntime::and).orElseThrow();
     }
+
     public static Object or(Object... os) {
         return Arrays.stream(os).reduce(JRuntime::or).orElseThrow();
     }
@@ -551,4 +554,10 @@ public class JRuntime {
         return !b;
     }
 
+    public static Boolean toBoolean(Object o) {
+        if (o instanceof String) {
+            return Boolean.valueOf(String.valueOf(o));
+        }
+        return (Boolean) o;
+    }
 }

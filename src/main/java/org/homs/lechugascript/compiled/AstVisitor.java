@@ -85,7 +85,18 @@ public class AstVisitor {
 
     public String onVisitSymbol(SymbolAst ast) {
         String r = getNextVar();
-        s.appendl("final var " + r + " = " + ast.value + ";");
+        final String symbol = ast.value;
+//        if(symbol.startsWith(".")) {
+//            String invocation=symbol.substring(1);
+////            s.appendl("final var " + r + " = " + symbol + ";");
+//            s.appendl("final var " + r + " = (" + Closure.class.getName() + ") args_" + r + " -> {");
+//            s.incLevel();
+//            s.appendl("");
+//            s.decLevel();
+//            s.appendl("};");
+//        }else {
+        s.appendl("final var " + r + " = " + symbol + ";");
+//        }
         return r;
     }
 
@@ -109,13 +120,21 @@ public class AstVisitor {
     }
 
     public String onVisitParenthesis(ParenthesisAst ast) {
-        s.appendl("// " + ast);
-
         final String operator;
         if (ast.operator instanceof ParenthesisAst) {
             operator = onVisitParenthesis((ParenthesisAst) ast.operator);
         } else {
             operator = ast.operator.toString();
+            if (operator.startsWith(".")) {
+                String invocation = operator.substring(1);
+                String r = getNextVar();
+                s.appendl("final var " + r + " = " + invocation + "(" +
+                        ast.arguments.stream()
+                                .map(this::visit)
+                                .collect(Collectors.joining(", "))
+                        + ");");
+                return r;
+            }
         }
 
         switch (operator) {
@@ -129,6 +148,8 @@ public class AstVisitor {
                 return visitIf(ast);
             case "while":
                 return visitWhile(ast);
+            case "let":
+                return visitLet(ast);
 
             case "+":
                 return visitJRuntimeInvocation(ast, "add");
@@ -157,18 +178,38 @@ public class AstVisitor {
                 return visitJRuntimeInvocation(ast, "le");
 
             case "and":
-                return visitJRuntimeInvocation(ast, "and");
+                return visitAnd(ast);
             case "or":
-                return visitJRuntimeInvocation(ast, "or");
+                return visitOr(ast);
             case "not":
                 return visitJRuntimeInvocation(ast, "not");
         }
 
+        s.appendl("// " + ast);
         String r = getNextVar();
         List<String> varArgumentNames = ast.arguments.stream().map(this::visit).collect(Collectors.toList());
         s.appendl("final var " + r + " = ((" + Closure.class.getName() + ") " + operator + ").apply(" + String.join(", ", varArgumentNames) + ");");
         return r;
+    }
 
+    private String visitLet(ParenthesisAst ast) {
+        s.appendl("// " + ast.toString());
+        MapAst assigns = (MapAst) ast.arguments.get(0);
+        List<Ast> bodies = ast.arguments.subList(1, ast.arguments.size());
+
+        var resultVarName = getNextVar();
+        s.appendl("Object " + resultVarName + " = null;");
+        s.appendl("{");
+        for (var assign : assigns.values.entrySet()) {
+            String assignVarName = visit(assign.getValue());
+            s.appendl("Object " + assign.getKey().toString() + " = " + assignVarName + ";");
+        }
+        for (var body : bodies) {
+            s.appendl(resultVarName + " = " + visit(body) + ";");
+        }
+        s.appendl("}");
+
+        return resultVarName;
     }
 
     private String visitIf(ParenthesisAst ast) {
@@ -206,7 +247,7 @@ public class AstVisitor {
     private String visitWhile(ParenthesisAst ast) {
         s.appendl("// " + ast.toString());
         Ast condition = ast.arguments.get(0);
-        Ast thenBody = ast.arguments.get(1);
+        List<Ast> thenBodies = ast.arguments.subList(1, ast.arguments.size());
 
         var ifResultVarName = getNextVar();
         s.appendl("Object " + ifResultVarName + " = null;");
@@ -215,7 +256,11 @@ public class AstVisitor {
         s.incLevel();
         var conditionResultVarName = visit(condition);
         s.appendl("if (!" + conditionResultVarName + ") {break;}");
-        var thenResultVarname = visit(thenBody);
+
+        String thenResultVarname = null;
+        for (var thenBody : thenBodies) {
+            thenResultVarname = visit(thenBody);
+        }
         s.appendl(ifResultVarName + " = " + thenResultVarname + ";");
         s.decLevel();
         s.appendl("}");
@@ -224,9 +269,65 @@ public class AstVisitor {
     }
 
     private String visitJRuntimeInvocation(ParenthesisAst ast, String methodName) {
+        s.appendl("// " + ast.toString());
+
         List<String> varArgumentNames = ast.arguments.stream().map(this::visit).collect(Collectors.toList());
         String resultVarName = getNextVar();
         s.appendl("final var " + resultVarName + " = " + JRuntime.class.getName() + "." + methodName + "(" + String.join(", ", varArgumentNames) + ");");
+        return resultVarName;
+    }
+
+    private String visitAnd(ParenthesisAst ast) {
+        s.appendl("// " + ast.toString());
+
+        String resultVarName = getNextVar();
+        s.appendl("boolean " + resultVarName + " = false;");
+        s.appendl("{");
+        s.incLevel();
+        for (int i = 0; i < ast.arguments.size(); i++) {
+            Ast arg = ast.arguments.get(i);
+            String argVarName = getNextVar();
+            s.appendl("final var " + argVarName + " = " + JRuntime.class.getName() + ".toBoolean(" + visit(arg) + ");");
+            s.appendl("if (" + argVarName + ") {");
+            s.incLevel();
+        }
+
+        s.appendl(resultVarName + " = true;");
+
+        for (int i = 0; i < ast.arguments.size(); i++) {
+            s.decLevel();
+            s.appendl("}");
+        }
+
+        s.decLevel();
+        s.appendl("}");
+
+        return resultVarName;
+    }
+
+    private String visitOr(ParenthesisAst ast) {
+        s.appendl("// " + ast.toString());
+
+        String resultVarName = getNextVar();
+        s.appendl("boolean " + resultVarName + " = false;");
+        s.appendl("{");
+        s.incLevel();
+        for (int i = 0; i < ast.arguments.size(); i++) {
+            Ast arg = ast.arguments.get(i);
+            String argVarName = getNextVar();
+            s.appendl("final boolean " + argVarName + " = " + JRuntime.class.getName() + ".toBoolean(" + visit(arg) + ");");
+            s.appendl("if (" + argVarName + ") {");
+            s.incLevel();
+            s.appendl(resultVarName + " = true;");
+            s.decLevel();
+            s.appendl("} else {");
+        }
+        for (int i = 0; i < ast.arguments.size(); i++) {
+            s.appendl("}");
+            s.decLevel();
+        }
+        s.appendl("}");
+
         return resultVarName;
     }
 
