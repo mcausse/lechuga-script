@@ -108,7 +108,6 @@ public class JRuntime {
 
             throw new RuntimeException();
         }
-
     }
 
     static final List<Class<? extends Number>> ntypes = new ArrayList<Class<? extends Number>>();

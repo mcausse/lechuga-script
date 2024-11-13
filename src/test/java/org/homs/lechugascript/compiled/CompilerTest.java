@@ -41,6 +41,10 @@ class CompilerTest {
                 Arguments.of("BasicDef3", "(def a 2) (def b 3) (+ a b)", 5),
                 Arguments.of("Def", "(+ (def con 2) con)", 4),
                 Arguments.of("Def2", "(def a (def b 5)) (+ a b)", 10),
+
+                Arguments.of("MultibodyDef", "(def a (+ 1 2) (+ 2 3) (+ 3 4))", 7),
+                Arguments.of("MultibodyDef2", "(def a (+ 1 2) (+ 2 3) (+ 3 4)) a", 7),
+
                 Arguments.of("BasicFn", "((fn [a b] (+ a b)) 2 3)", 5),
                 Arguments.of("FnReturnLastStatement", "((=> 1 2 3 4 5))", 5),
                 Arguments.of("BasicDefn", "(def sum (fn [a b] (+ a b)))  (sum 2 3)", 5),
@@ -77,6 +81,7 @@ class CompilerTest {
                 Arguments.of("Let1", "(let {} 2)", 2),
                 Arguments.of("Let2", "(let {[a 3]} 1 2 a)", 3),
                 Arguments.of("Let3", "(let {[one 1][two 2][three 3]} (+ one two three))", 6),
+                Arguments.of("Let4", "(let {[a 3][b (+ a 1)]} b)", 4),
 
 //                Arguments.of("Fact",
 //                        "(def fact (x => " +

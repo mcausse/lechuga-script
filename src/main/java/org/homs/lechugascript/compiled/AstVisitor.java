@@ -183,6 +183,11 @@ public class AstVisitor {
                 return visitOr(ast);
             case "not":
                 return visitJRuntimeInvocation(ast, "not");
+
+//            case "class":
+//            case "field":
+//            case "method":
+//                return visitOOP(ast);
         }
 
         s.appendl("// " + ast);
@@ -191,6 +196,22 @@ public class AstVisitor {
         s.appendl("final var " + r + " = ((" + Closure.class.getName() + ") " + operator + ").apply(" + String.join(", ", varArgumentNames) + ");");
         return r;
     }
+
+//    private String visitOOP(ParenthesisAst ast) {
+//        String operator = ast.operator.toString();
+//        StringAst className = (StringAst) ast.arguments.get(0);
+//        MapAst parameters = (MapAst) ast.arguments.get(1);
+//        switch (operator) {
+//            case "class":
+//                s.appendl("public static class " + className + " {");
+//
+//                s.appendl("}");
+//            case "field":
+//            case "method":
+//            default:
+//                throw new RuntimeException(operator);
+//        }
+//    }
 
     private String visitLet(ParenthesisAst ast) {
         s.appendl("// " + ast.toString());

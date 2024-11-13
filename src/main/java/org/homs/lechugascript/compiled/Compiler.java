@@ -47,7 +47,7 @@ public class Compiler {
         File root = new File(targetDirectory);
 
         File sourceFile = new File(root, packageName.replace('.', '/') + "/" + className + ".java");
-        if(sourceFile.exists()) {
+        if (sourceFile.exists()) {
             sourceFile.delete();
         }
         sourceFile.getParentFile().mkdirs();
