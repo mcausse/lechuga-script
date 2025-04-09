@@ -35,8 +35,8 @@ public class Parser {
                 return parseListAst();
             case '{':
                 return parseMapAst();
-//            case '"':
-//                return parseStringAst();
+            case '"':
+                return parseStringAst();
             case ':':
                 return parseWordAst();
             default: {
@@ -59,6 +59,65 @@ public class Parser {
                 return parseSymbolAst(tokenValue);
             }
         }
+    }
+
+    private Ast parseStringAst() {
+        var position = lexer.getCurrentPosition();
+        var s = new StringBuilder();
+        lexer.consumeChars("\"");
+        while (lexer.isNotEof() && lexer.getCurrentChar() != '"') {
+            char c = lexer.getCurrentChar();
+            if (c == '\\') {
+                lexer.consumeChars("\\"); // chupa \
+                s.append(getUnescapedChar(c));
+            } else {
+                s.append(c);
+            }
+            lexer.consumeChar();
+        }
+        lexer.consumeChars("\"");
+        return new StringAst(position, s.toString());
+    }
+//    protected Token consumeString(String delimiter, EToken tokenType) {
+//        Token r;
+//        p += delimiter.length(); // chupa """
+//        StringBuilder s = new StringBuilder();
+//        int k = p;
+//        while (k + delimiter.length() <= program.length() && !program.startsWith(delimiter, k)) {
+//            if (program.charAt(k) == '\\' && k + 1 < program.length() /*&& program.charAt(k + 1) == '"'*/) {
+//                k++; // chupa the \
+//                char unescapedChar = getUnescapedChar(program.charAt(k));
+//                s.append(unescapedChar);
+//            } else {
+//                s.append(program.charAt(k));
+//            }
+//            k++;
+//        }
+//        if (k + delimiter.length() > program.length()) {
+//            throw new RuntimeException("expected closing " + delimiter + " but eof; opened at " + sourceDesc + ":" + row + ":" + col);
+//        }
+//        String value = s.toString();
+//        p = k + delimiter.length(); // chupa """
+//        r = new Token(tokenType, value, sourceDesc, row, col);
+//        return r;
+//    }
+
+    private char getUnescapedChar(char escapedChar) {
+        char unescapedChar;
+        switch (escapedChar) {
+            case 'n':
+                unescapedChar = '\n';
+                break;
+            case 'r':
+                unescapedChar = '\r';
+                break;
+            case 't':
+                unescapedChar = '\t';
+                break;
+            default:
+                unescapedChar = escapedChar;
+        }
+        return unescapedChar;
     }
 
     private Ast parseMapAst() {

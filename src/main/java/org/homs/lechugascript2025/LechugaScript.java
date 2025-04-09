@@ -23,6 +23,9 @@ public class LechugaScript {
         env.def("defn", LangFuncs.defnCallable);
         env.def("let", LangFuncs.letCallable);
 
+        env.def("call", LangFuncs.callJavaCallable);
+        env.def("new", LangFuncs.newJavaCallable);
+
         env.def("+", ArithmeticFuncs.funcAdd);
         env.def("-", ArithmeticFuncs.funcSub);
         env.def("*", ArithmeticFuncs.funcMul);

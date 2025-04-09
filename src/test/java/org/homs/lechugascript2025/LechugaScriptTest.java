@@ -64,7 +64,12 @@ class LechugaScriptTest {
 
                 Arguments.of("(let{a 1 b 2 c 3}(+ a b c))", 6),
                 Arguments.of("(let{a 1 b 2 c 3}a b c)", 3),
-                Arguments.of("(let{a 1 b 2 c (+ a b)}a b c)", 3)
+                Arguments.of("(let{a 1 b 2 c (+ a b)}a b c)", 3),
+
+                Arguments.of("\"jou\"", "jou"),
+
+                Arguments.of("(call (call 1 \"getClass\") \"getName\")", "java.lang.Integer"),
+                Arguments.of("(new \"java.lang.Integer\" 123)", 123)
         );
     }
 

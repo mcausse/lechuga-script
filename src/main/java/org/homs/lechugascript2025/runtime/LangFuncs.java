@@ -1,6 +1,7 @@
 package org.homs.lechugascript2025.runtime;
 
 import org.homs.lechugascript.Environment;
+import org.homs.lechugascript2025.Callable;
 import org.homs.lechugascript2025.CustomCallable;
 import org.homs.lechugascript2025.LazyCallable;
 import org.homs.lechugascript2025.LechugaException;
@@ -147,26 +148,27 @@ public class LangFuncs {
         return r;
     };
 
-//    public static LazyCallable callJavaCallable = (env, astArgs) -> {
-//
-//        if (astArgs.size() < 2) {
-//            throw new RuntimeException("required at least 2 args");
-//        }
-//
-//        Environment env2 = new Environment(env);
-//        MapAst mapast = ((MapAst) astArgs.get(0));
-//        for (Map.Entry<Ast, Ast> entry : mapast.getAstsMap().entrySet()) {
-//            String key = ((SymbolAst) entry.getKey()).getSymbol();
-//            Object value = entry.getValue().evaluate(env2);
-//            env2.def(key, value);
-//        }
-//
-//        Object r = null;
-//        for (int i = 1; i < astArgs.size(); i++) {
-//            r = ((Ast) astArgs.get(i)).evaluate(env2);
-//        }
-//
-//        return r;
-//    };
+    public static Callable callJavaCallable = (env, args) -> {
+
+        if (args.size() < 2) {
+            throw new RuntimeException("required at least 2 args");
+        }
+        Object target = args.get(0);
+        String methodName = (String) args.get(1);
+        List<Object> callArgs = args.subList(2, args.size());
+
+        return ReflectUtils.callMethod(target, methodName, callArgs);
+    };
+
+    public static Callable newJavaCallable = (env, args) -> {
+
+        if (args.isEmpty()) {
+            throw new RuntimeException("required at least 1 arg");
+        }
+        String className = (String) args.get(0);
+        List<Object> callArgs = args.subList(1, args.size());
+
+        return ReflectUtils.newInstance(className, callArgs.toArray());
+    };
 
 }
