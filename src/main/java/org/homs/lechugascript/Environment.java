@@ -62,4 +62,15 @@ public class Environment {
         }
     }
 
+    public Environment copyFlatenized() {
+        Environment r = new Environment(null);
+        Environment p = this;
+        while (p != null) {
+            for (Map.Entry<String, Object> entry : p.variables.entrySet()) {
+                r.def(entry.getKey(), entry.getValue());
+            }
+            p = p.parent;
+        }
+        return r;
+    }
 }

@@ -146,3 +146,24 @@ every?           inc              list/append      list/cons        list/head   
 mapcar           math/abs         math/mul         math/sum         not              println
 reduce           remove-if        remove-if-not    seq              str/join         to-string
 ```
+
+```clojure
+(defn sqr [x] (* x x))
+
+(defn Math/sqr [x] (* x x))
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
